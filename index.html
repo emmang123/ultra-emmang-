@@ -188,6 +188,7 @@
   .rankStage,.rankScore{text-align:right;font-size:12px;color:#dce6f0}
   .rankMsg{text-align:center;padding:18px 8px;font-size:14px;font-weight:900;color:#dbe7f6}
   .rankBtnRow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+  .rankBtnRow.hallOnlyRetry{grid-template-columns:1fr}
   .rankBtn{height:48px;border:0;border-radius:17px;background:linear-gradient(180deg,#ffe977,#ffb42d);border-bottom:7px solid #8f5714;color:#231500;font-weight:1000;font-size:15px;box-shadow:0 10px 20px rgba(0,0,0,.28)}
   .rankBtn.dark{background:linear-gradient(180deg,#5a6475,#2a313e);border-bottom-color:#0b0d12;color:white}
   .rankBtn:active{transform:translateY(2px);border-bottom-width:4px}
@@ -241,7 +242,7 @@
 <div id="app">
   <canvas id="cv"></canvas>
   <div id="ui">
-    <div class="versionBadge" id="gameVersion">v0.39</div>
+    <div class="versionBadge" id="gameVersion">v0.40</div>
     <div class="safeTop">
       <div class="topRow">
         <div class="panel badge"><div class="label">WAVE</div><div class="value" id="wave">1</div><div class="sub" id="stageType">일반</div></div>
@@ -325,7 +326,7 @@
   <div id="titleScreen">
     <div class="titleHero">
       <div class="titleOverlay"></div>
-      <div class="versionBadge" id="titleVersion">v0.39</div>
+      <div class="versionBadge" id="titleVersion">v0.40</div>
       <div class="titleSpark s1"></div>
       <div class="titleSpark s2"></div>
       <div class="titleSpark s3"></div>
@@ -385,8 +386,7 @@
       <div class="rankList" id="rankListBody">
         <div class="rankMsg">랭킹 불러오는 중...</div>
       </div>
-      <div class="rankBtnRow">
-        <button class="rankBtn dark" id="hallCloseBtn">닫기</button>
+      <div class="rankBtnRow hallOnlyRetry">
         <button class="rankBtn" id="hallRetryBtn">다시하기</button>
       </div>
     </div>
@@ -455,7 +455,7 @@
 
 <script>
 (()=>{
-  const GAME_VERSION = 'v0.39';
+  const GAME_VERSION = 'v0.40';
 
   // GitHub Pages / 카톡 인앱브라우저 캐시 꼬임 완화.
   // 저장 데이터(localStorage)는 유지하고, 서비스워커/뒤로가기 캐시만 정리한다.
@@ -2441,11 +2441,20 @@
     });
   }
 
+  function hardRestart(){
+    try{
+      stopBgm();
+      stopTitleBgm();
+    }catch(e){}
+    const cleanPath = location.origin + location.pathname;
+    location.replace(`${cleanPath}?r=${Date.now()}`);
+  }
+
   bindTap('drawBtn', drawUnitAction);
   bindTap('draw6Btn', drawSixAction);
   bindTap('autoMergeBtn', autoMergeAll);
   bindTap('epicRerollBtn', ()=>{ sfx('menu'); openEpicRerollMenu(); });
-  bindTap('retryBtn', ()=>location.reload());
+  bindTap('retryBtn', hardRestart);
   function setLowMode(on){
     state.lowMode = !!on;
     const btn=$('lowModeBtn');
@@ -2476,13 +2485,12 @@
     const card=e.target.closest('[data-aug]');
     if(card) chooseAugment(Number(card.dataset.aug));
   });
-  bindTap('restartGameBtn', ()=>location.reload());
-  bindTap('statsRetryBtn', ()=>location.reload());
+  bindTap('restartGameBtn', hardRestart);
+  bindTap('statsRetryBtn', hardRestart);
   bindTap('statsCloseBtn', showRankRegister);
   bindTap('rankSubmitBtn', submitRank);
   bindTap('rankSkipBtn', async ()=>{ $('rankRegister').style.display='none'; await showHallOfFame(); });
-  bindTap('hallRetryBtn', ()=>location.reload());
-  bindTap('hallCloseBtn', ()=>$('hallOfFame').style.display='none');
+  bindTap('hallRetryBtn', hardRestart);
   function setSpeed(v){
     state.speed=v;
     sfx('speed');

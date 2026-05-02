@@ -215,7 +215,7 @@
 <div id="app">
   <canvas id="cv"></canvas>
   <div id="ui">
-    <div class="versionBadge" id="gameVersion">v0.20</div>
+    <div class="versionBadge" id="gameVersion">v0.22</div>
     <div class="safeTop">
       <div class="topRow">
         <div class="panel badge"><div class="label">WAVE</div><div class="value" id="wave">1</div><div class="sub" id="stageType">일반</div></div>
@@ -299,7 +299,7 @@
   <div id="titleScreen">
     <div class="titleHero">
       <div class="titleOverlay"></div>
-      <div class="versionBadge" id="titleVersion">v0.20</div>
+      <div class="versionBadge" id="titleVersion">v0.22</div>
       <div class="titleSpark s1"></div>
       <div class="titleSpark s2"></div>
       <div class="titleSpark s3"></div>
@@ -734,12 +734,55 @@
     const side = u.homeSide ?? Math.floor(rand(0,4));
     const pos = clamp(u.homePos ?? rand(.08,.92), .06, .94);
 
-    // 유닛은 몬스터를 계속 따라가는 게 아니라, 자기 담당 라인에 자리잡는 방식.
-    // 낮은 등급은 테두리 가까이, 높은 등급은 조금 안쪽에서 넓게 커버한다.
+    // 일반은 벽에 최대한 붙고, 고급/희귀/영웅/전설은 사거리만큼 안쪽에서 자리잡는다.
     if(side===0) return {x:b.x+inset+(b.w-inset*2)*pos, y:b.y+inset};
     if(side===1) return {x:b.x+b.w-inset, y:b.y+inset+(b.h-inset*2)*pos};
     if(side===2) return {x:b.x+inset+(b.w-inset*2)*(1-pos), y:b.y+b.h-inset};
     return {x:b.x+inset, y:b.y+inset+(b.h-inset*2)*(1-pos)};
+  }
+
+  function chooseOpenWallAnchor(race,rank){
+    // 4개 벽 × 여러 위치 후보를 만들고,
+    // 기존 유닛들과 가장 덜 겹치는 위치를 선택한다.
+    // 이렇게 하면 일반 유닛은 생산되자마자 빈 벽 가까이 붙고,
+    // 고급/희귀 이상은 등급별 inset만큼 자연스럽게 안쪽에 자리잡는다.
+    const temp={race,rank};
+    const positions=[.10,.22,.34,.46,.58,.70,.82,.94];
+    const sideCount=[0,0,0,0];
+
+    for(const u of state.units){
+      if(u.homeSide!==undefined) sideCount[u.homeSide]++;
+    }
+
+    let best=null;
+    for(let side=0; side<4; side++){
+      for(const pos of positions){
+        temp.homeSide=side;
+        temp.homePos=pos;
+        const a=edgeAnchorForUnit(temp);
+
+        let minD=99999;
+        for(const u of state.units){
+          const ux = u.ax ?? u.x;
+          const uy = u.ay ?? u.y;
+          minD=Math.min(minD, Math.hypot(ux-a.x, uy-a.y));
+        }
+
+        // 같은 벽에 너무 몰리지 않게 페널티.
+        // 그래도 가까운 빈 공간이 있으면 그쪽을 선택.
+        const score = minD - sideCount[side]*18 + Math.random()*3;
+        if(!best || score>best.score) best={side,pos,x:a.x,y:a.y,score};
+      }
+    }
+
+    if(!best){
+      const side=Math.floor(rand(0,4));
+      const pos=rand(.10,.90);
+      temp.homeSide=side; temp.homePos=pos;
+      const a=edgeAnchorForUnit(temp);
+      return {side,pos,x:a.x,y:a.y};
+    }
+    return best;
   }
 
   function setUnitHomeFromPosition(u){
@@ -877,10 +920,10 @@
     const mRate = mythicRate();
     if(r < mRate) return '신화';
     if(r < mRate + eRate) return '에픽';
-    if(r < mRate + eRate + 0.000065) return '전설';
-    if(r < mRate + eRate + 0.00156) return '영웅';
-    if(r < mRate + eRate + 0.0247) return '희귀';
-    if(r < mRate + eRate + 0.0907) return '고급';
+    if(r < mRate + eRate + 0.0000455) return '전설';
+    if(r < mRate + eRate + 0.001092) return '영웅';
+    if(r < mRate + eRate + 0.01729) return '희귀';
+    if(r < mRate + eRate + 0.08329) return '고급';
     return '일반';
   }
 
@@ -932,20 +975,13 @@
     if(rank==='에픽' && state.epicSeen && race in state.epicSeen) state.epicSeen[race]=true;
     const p=innerSpawn();
 
-    // 생성 순서에 따라 4방향 테두리에 분산 배치.
-    // 같은 쪽에서도 위치값을 다르게 줘서 한 곳에 뭉치지 않게 한다.
-    const n = state.units.length;
-    const homeSide = n % 4;
-    const lineIndex = Math.floor(n / 4);
-    const homePos = ((lineIndex * 0.23) + rand(0.05,0.18)) % 0.88 + 0.06;
-
-    const temp={race,rank,homeSide,homePos};
-    const a=edgeAnchorForUnit(temp);
+    const a=chooseOpenWallAnchor(race,rank);
     state.units.push({
       id:Math.random(), race, rank,
       x:p.x, y:p.y, tx:a.x, ty:a.y,
-      ax:a.x, ay:a.y, homeSide, homePos, manual:false,
-      slotOffset:rand(-18,18), lastMoveTarget:null, moveThink:rand(.15,.75),
+      ax:a.x, ay:a.y, homeSide:a.side, homePos:a.pos, manual:false, settled:false,
+      slotOffset:rand(-18,18), lastMoveTarget:null, moveThink:999,
+      idleOutRange:0, holdTimer:999,
       cool:rand(0,.35), step:Math.random()*6.28, face:1, pulse:0,
     });
   }
@@ -1247,48 +1283,38 @@
       if(state.dragging===u.id) continue;
       const power=unitPower(u);
 
-      const picked=chooseTargetForUnit(u);
-      let target=picked.target, best=picked.best;
-      u.moveThink = (u.moveThink || 0) - dt;
+      // 유닛은 생성 직후 정해진 벽/라인 위치로만 이동한다.
+      // 그 자리에 도착하거나 플레이어가 드래그해서 배치하면 이후에는 절대 추격 이동하지 않는다.
+      u.tx = u.ax;
+      u.ty = u.ay;
 
-      if(target && best <= power.range){
-        // 사거리 안에 몬스터가 있으면 이동하지 않고 제자리 공격.
-        u.tx = u.x;
-        u.ty = u.y;
-        u.face = target.x > u.x ? 1 : -1;
-        u.moveThink = Math.max(u.moveThink, .35);
-      }else if(!u.manual){
-        // 이동 목표는 매 프레임 바꾸지 않고 약 0.7초마다 재계산.
-        // 그래서 몬스터를 쫓아 빙글빙글 도는 느낌을 줄인다.
-        if(u.moveThink <= 0){
-          if(target){
-            const a=targetAnchorForUnit(u,target,power);
-            u.ax=a.x; u.ay=a.y;
-            u.face = target.x > u.x ? 1 : -1;
-          }else{
-            const a=edgeAnchorForUnit(u);
-            u.ax=a.x; u.ay=a.y;
-          }
-          u.moveThink = .65 + Math.random()*.25;
-        }
-        u.tx = u.ax;
-        u.ty = u.ay;
+      u.tx=clamp(u.tx,ib.x+8,ib.x+ib.w-8);
+      u.ty=clamp(u.ty,ib.y+8,ib.y+ib.h-8);
+
+      const dx=u.tx-u.x, dy=u.ty-u.y, d=Math.hypot(dx,dy);
+      if(d>1){
+        const step=Math.min(d,power.move*dt*.70);
+        u.x += dx/d*step;
+        u.y += dy/d*step;
+        u.step += dt*3.0;
       }else{
-        u.tx=u.ax; u.ty=u.ay;
+        u.settled=true;
       }
 
-      u.tx=clamp(u.tx,ib.x+8,ib.x+ib.w-8); u.ty=clamp(u.ty,ib.y+8,ib.y+ib.h-8);
-      const dx=u.tx-u.x, dy=u.ty-u.y, d=Math.hypot(dx,dy);
-
-      if(d>1){ const step=Math.min(d,power.move*dt*.78); u.x += dx/d*step; u.y += dy/d*step; u.step += dt*3.5; }
-
+      // 겹침 보정은 아주 약하게만 유지. 자리를 크게 밀려나지 않게 한다.
       for(const other of state.units){
-        if(other===u) continue; const dx2=u.x-other.x, dy2=u.y-other.y, d2=Math.hypot(dx2,dy2), min=14;
-        if(d2>0 && d2<min){ const push=(min-d2)*0.05; u.x += dx2/d2*push; u.y += dy2/d2*push; }
+        if(other===u) continue;
+        const dx2=u.x-other.x, dy2=u.y-other.y, d2=Math.hypot(dx2,dy2), min=13;
+        if(d2>0 && d2<min){
+          const push=(min-d2)*0.035;
+          u.x += dx2/d2*push;
+          u.y += dy2/d2*push;
+        }
       }
 
       const attackCheck=chooseTargetForUnit(u);
-      target=attackCheck.target; best=attackCheck.best;
+      const target=attackCheck.target, best=attackCheck.best;
+      if(target) u.face = target.x > u.x ? 1 : -1;
 
       u.cool -= dt;
       if(target && best <= power.range && u.cool <= 0){
@@ -2124,7 +2150,7 @@
   });
   cv.addEventListener('pointermove',e=>{
     if(!state.dragging) return; const p=pointerPos(e); const ib=innerBox(); const u=state.units.find(x=>x.id===state.dragging); if(!u) return;
-    u.x=clamp(p.x,ib.x+12,ib.x+ib.w-12); u.y=clamp(p.y,ib.y+12,ib.y+ib.h-12); u.tx=u.x; u.ty=u.y; setUnitHomeFromPosition(u); u.moveThink=0;
+    u.x=clamp(p.x,ib.x+12,ib.x+ib.w-12); u.y=clamp(p.y,ib.y+12,ib.y+ib.h-12); u.tx=u.x; u.ty=u.y; setUnitHomeFromPosition(u); u.ax=u.x; u.ay=u.y; u.manual=true; u.settled=true; u.holdTimer=999; u.moveThink=999;
   });
   cv.addEventListener('pointerup',()=>state.dragging=null); cv.addEventListener('pointercancel',()=>state.dragging=null); document.addEventListener('pointerup',()=>state.dragging=null); document.addEventListener('pointercancel',()=>state.dragging=null);
 

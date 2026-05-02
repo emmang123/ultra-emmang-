@@ -215,7 +215,7 @@
 <div id="app">
   <canvas id="cv"></canvas>
   <div id="ui">
-    <div class="versionBadge" id="gameVersion">v0.22</div>
+    <div class="versionBadge" id="gameVersion">v0.23</div>
     <div class="safeTop">
       <div class="topRow">
         <div class="panel badge"><div class="label">WAVE</div><div class="value" id="wave">1</div><div class="sub" id="stageType">일반</div></div>
@@ -299,7 +299,7 @@
   <div id="titleScreen">
     <div class="titleHero">
       <div class="titleOverlay"></div>
-      <div class="versionBadge" id="titleVersion">v0.22</div>
+      <div class="versionBadge" id="titleVersion">v0.23</div>
       <div class="titleSpark s1"></div>
       <div class="titleSpark s2"></div>
       <div class="titleSpark s3"></div>
@@ -2162,11 +2162,23 @@
     }
   }, true);
 
-  $('drawBtn').onclick = drawUnitAction;
-  $('draw6Btn').onclick = drawSixAction;
-  $('autoMergeBtn').onclick = autoMergeAll;
-  $('epicRerollBtn').onclick = ()=>{ sfx('menu'); openEpicRerollMenu(); };
-  $('retryBtn').onclick = ()=>location.reload();
+  function bindTap(id,fn){
+    const el=$(id);
+    if(!el) return;
+    el.onclick=null;
+    el.addEventListener('pointerup',e=>{
+      e.preventDefault();
+      e.stopPropagation();
+      state.dragging=null;
+      fn(e);
+    });
+  }
+
+  bindTap('drawBtn', drawUnitAction);
+  bindTap('draw6Btn', drawSixAction);
+  bindTap('autoMergeBtn', autoMergeAll);
+  bindTap('epicRerollBtn', ()=>{ sfx('menu'); openEpicRerollMenu(); });
+  bindTap('retryBtn', ()=>location.reload());
   function setLowMode(on){
     state.lowMode = !!on;
     const btn=$('lowModeBtn');

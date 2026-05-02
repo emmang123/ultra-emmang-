@@ -32,8 +32,8 @@
   .retryBtn,.speedBtn{pointer-events:auto;min-height:36px;border:0;border-radius:999px;background:linear-gradient(180deg,#525a68,#262d39);border:2px solid rgba(255,255,255,.12);border-bottom:5px solid #0a0d12;color:white;font-weight:1000;font-size:13px;letter-spacing:.6px;box-shadow:var(--shadow)}
   .retryBtn:active,.speedBtn:active{transform:translateY(2px);border-bottom-width:3px}
   .speedBtn.active{background:linear-gradient(180deg,#ffe977,#ffb42d);border-bottom-color:#8f5714;color:#1f1400;text-shadow:0 1px rgba(255,255,255,.45)}
-  .augBtn{pointer-events:auto;min-height:36px;border:0;border-radius:999px;background:linear-gradient(180deg,#5f7bff,#3442b8);border:2px solid rgba(255,255,255,.12);border-bottom:5px solid #10165d;color:white;font-weight:1000;font-size:12px;letter-spacing:-.2px;box-shadow:var(--shadow)}
-  .lowBtn{pointer-events:auto;min-height:36px;border:0;border-radius:999px;background:linear-gradient(180deg,#32d67c,#148245);border:2px solid rgba(255,255,255,.12);border-bottom:5px solid #075126;color:white;font-weight:1000;font-size:11px;letter-spacing:-.4px;box-shadow:var(--shadow)}
+  .augBtn{pointer-events:auto;min-height:36px;border:0;border-radius:999px;background:linear-gradient(180deg,#5f7bff,#3442b8);border:2px solid rgba(255,255,255,.12);border-bottom:5px solid #10165d;color:white;font-weight:1000;font-size:12px;letter-spacing:-.2px;box-shadow:var(--shadow);white-space:nowrap;line-height:1}
+  .lowBtn{pointer-events:auto;min-height:36px;border:0;border-radius:999px;background:linear-gradient(180deg,#32d67c,#148245);border:2px solid rgba(255,255,255,.12);border-bottom:5px solid #075126;color:white;font-weight:1000;font-size:11px;letter-spacing:-.4px;box-shadow:var(--shadow);white-space:nowrap;line-height:1}
   .lowBtn.high{background:linear-gradient(180deg,#ff9a47,#b95318);border-bottom-color:#6e2a0c}
   .augBtn:active,.lowBtn:active{transform:translateY(2px);border-bottom-width:3px}
   .augOverlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:30;padding:18px;pointer-events:auto;background:rgba(0,0,0,.58)}
@@ -75,8 +75,8 @@
   .bigBtn,.smallBtn,.raceBtn{pointer-events:auto;height:56px;border:0;border-radius:18px;position:relative;z-index:20;font-weight:1000;text-shadow:0 2px 0 rgba(0,0,0,.3);box-shadow:var(--shadow);border:2px solid rgba(255,255,255,.12);border-bottom-width:7px;touch-action:manipulation}
   .bigBtn:active,.smallBtn:active,.raceBtn:active{transform:translateY(3px);border-bottom-width:4px}
   .bigBtn{background:linear-gradient(180deg,var(--gold1),var(--gold2));border-bottom-color:var(--gold3);color:#1f1400;font-size:20px;line-height:1.05;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}.btnSub{font-size:12px;font-weight:1000;opacity:.9}
-  .smallBtn{background:linear-gradient(180deg,#c88b45,#7a431f);border-bottom-color:#3f1f0d;color:#fff7df;font-size:17px;line-height:1.05}
-  .epicRerollBtn{background:linear-gradient(180deg,#b98cff,#7c4dff);border-bottom-color:#4a238f;color:white;font-size:15px;line-height:1.05}
+  .smallBtn{background:linear-gradient(180deg,#c88b45,#7a431f);border-bottom-color:#3f1f0d;color:#fff7df;font-size:15px;line-height:1;white-space:nowrap}
+  .epicRerollBtn{background:linear-gradient(180deg,#b98cff,#7c4dff);border-bottom-color:#4a238f;color:white;font-size:13px;line-height:1;white-space:nowrap}
   .raceBtn{font-size:18px;color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1.05}
   .raceName{font-size:17px;font-weight:1000}
   .raceCounts{display:flex;gap:4px;align-items:center;justify-content:center;font-size:14px;font-weight:1000;letter-spacing:.2px}
@@ -215,7 +215,7 @@
 <div id="app">
   <canvas id="cv"></canvas>
   <div id="ui">
-    <div class="versionBadge" id="gameVersion">v0.23</div>
+    <div class="versionBadge" id="gameVersion">v0.24</div>
     <div class="safeTop">
       <div class="topRow">
         <div class="panel badge"><div class="label">WAVE</div><div class="value" id="wave">1</div><div class="sub" id="stageType">일반</div></div>
@@ -258,8 +258,8 @@
       <div class="actionRow" id="mainActions">
         <button class="bigBtn" id="drawBtn"><span>유닛뽑기</span><span class="btnSub" id="drawCostLabel">1회 10G</span></button>
         <button class="bigBtn" id="draw6Btn"><span>유닛뽑기</span><span class="btnSub" id="draw6CostLabel">6회 50G</span></button>
-        <button class="smallBtn" id="autoMergeBtn">자동 합성</button>
-        <button class="smallBtn epicRerollBtn" id="epicRerollBtn">에픽<br>다시 뽑기</button>
+        <button class="smallBtn" id="autoMergeBtn">자동합성</button>
+        <button class="smallBtn epicRerollBtn" id="epicRerollBtn">에픽뽑기</button>
       </div>
       <div class="raceRow" id="raceRow">
         <button class="raceBtn race-m" data-race="매실">
@@ -299,7 +299,7 @@
   <div id="titleScreen">
     <div class="titleHero">
       <div class="titleOverlay"></div>
-      <div class="versionBadge" id="titleVersion">v0.23</div>
+      <div class="versionBadge" id="titleVersion">v0.24</div>
       <div class="titleSpark s1"></div>
       <div class="titleSpark s2"></div>
       <div class="titleSpark s3"></div>
@@ -981,7 +981,7 @@
       x:p.x, y:p.y, tx:a.x, ty:a.y,
       ax:a.x, ay:a.y, homeSide:a.side, homePos:a.pos, manual:false, settled:false,
       slotOffset:rand(-18,18), lastMoveTarget:null, moveThink:999,
-      idleOutRange:0, holdTimer:999,
+      idleOutRange:0, noHitTime:0, holdTimer:999,
       cool:rand(0,.35), step:Math.random()*6.28, face:1, pulse:0,
     });
   }
@@ -1316,8 +1316,24 @@
       const target=attackCheck.target, best=attackCheck.best;
       if(target) u.face = target.x > u.x ? 1 : -1;
 
+      // 플레이어가 너무 안쪽/엉뚱한 곳에 둬서 한 바퀴 가까이 아무것도 못 때리면 예외적으로 재배치.
+      // 일반적인 경우에는 계속 고정, 완전 사각지대일 때만 자동으로 벽 쪽 공격 가능 지점으로 이동한다.
+      if(state.mobs.length && (!target || best > power.range)){
+        u.noHitTime = (u.noHitTime || 0) + dt;
+        if(u.noHitTime > 18){
+          const ref = target || state.mobs[Math.floor(state.mobs.length*.5)] || state.mobs[0];
+          if(ref){
+            const a=targetAnchorForUnit(u,ref,power);
+            u.ax=a.x; u.ay=a.y; u.tx=a.x; u.ty=a.y;
+            u.manual=false; u.settled=false; u.noHitTime=0;
+            if(audio.unlocked) sfx('menu');
+          }
+        }
+      }
+
       u.cool -= dt;
       if(target && best <= power.range && u.cool <= 0){
+        u.noHitTime = 0;
         if(u.race==='신화'){
           attack(u,target,power);
           useEpicAbility(u,target);
@@ -2070,14 +2086,14 @@
         <button class="menu-sell" data-act="sell">판매</button>
         <button class="menu-sell" data-act="sellAll">전체 판매</button>
       </div>`;
-    $('menu').onclick = e => {
+    setMenuTapHandler(e => {
       const act=e.target.closest('button')?.dataset.act; if(!act) return;
       if(act==='back'){ sfx('back'); closeMenu(); }
       if(act==='up'){ upgradeRace(race); openRaceMenu(race); }
       if(act==='merge'){ sfx('menu'); openRankMenu(race,'merge'); }
       if(act==='sell'){ sfx('menu'); openRankMenu(race,'sell'); }
       if(act==='sellAll'){ sellAllRace(race); openRaceMenu(race); }
-    };
+    });
   }
   function openRankMenu(race,mode){
     $('menu').innerHTML=`<h3>${race} ${mode==='merge'?'합성':'판매'}</h3>
@@ -2085,14 +2101,24 @@
       ${ranks.slice(0,5).map(r=>`<button class="${mode==='sell'?'menu-sell':'menu-util'}" data-rank="${r}">${r}<br><small>${countUnits(race,r)}마리 ${mode==='sell'?(sellValue(r)+'G'):''}</small></button>`).join('')}
       <button class="menu-back" data-rank="back">뒤로</button>
     </div>`;
-    $('menu').onclick = e => {
+    setMenuTapHandler(e => {
       const rank=e.target.closest('button')?.dataset.rank; if(!rank) return;
       if(rank==='back'){ sfx('back'); openRaceMenu(race); }
       else mode==='merge' ? mergeUnit(race,rank) : sellUnit(race,rank);
       if(rank!=='back') openRankMenu(race,mode);
-    }
+    });
   }
-  function closeMenu(){ $('menu').style.display='none'; $('mainActions').classList.remove('hidden'); $('raceRow').classList.remove('hidden'); }
+  function setMenuTapHandler(handler){
+    const menu=$('menu');
+    menu.onclick=null;
+    menu.onpointerup=e=>{
+      e.preventDefault();
+      e.stopPropagation();
+      state.dragging=null;
+      handler(e);
+    };
+  }
+  function closeMenu(){ $('menu').style.display='none'; $('mainActions').classList.remove('hidden'); $('raceRow').classList.remove('hidden'); $('menu').onpointerup=null; $('menu').onclick=null; }
   function openEpicRerollMenu(){
     $('menu').style.display='block';
     $('mainActions').classList.add('hidden');
@@ -2102,12 +2128,12 @@
         <button class="menu-back" data-act="back">뒤로가기</button>
         ${epicUnits.map(name=>`<button class="menu-util" data-epic="${name}">${name} 1마리<br><small>다시뽑기 50G · 보유 ${countUnits(name,'에픽')}마리</small></button>`).join('')}
       </div>`;
-    $('menu').onclick = e => {
+    setMenuTapHandler(e => {
       const btn=e.target.closest('button');
       if(!btn) return;
       if(btn.dataset.act==='back'){ sfx('back'); closeMenu(); return; }
       if(btn.dataset.epic) rerollEpicUnit(btn.dataset.epic);
-    };
+    });
   }
 
   function rerollEpicUnit(fromEpic){
@@ -2199,12 +2225,19 @@
   $('speed2Btn').onclick = ()=>setSpeed(2);
   $('speed4Btn').onclick = ()=>setSpeed(4);
   $('lowModeBtn').onclick = ()=>setLowMode(!state.lowMode);
-  $('augListBtn').onclick = showAugmentList;
-  $('augCloseBtn').onclick = ()=>$('augmentList').classList.remove('show');
-  $('augmentCards').onclick = e=>{ const card=e.target.closest('[data-aug]'); if(card) chooseAugment(Number(card.dataset.aug)); };
-  $('restartGameBtn').onclick = ()=>location.reload();
-  $('statsRetryBtn').onclick = ()=>location.reload();
-  $('statsCloseBtn').onclick = ()=>$('clearStats').style.display='none';
+  bindTap('augListBtn', showAugmentList);
+  bindTap('augCloseBtn', ()=>$('augmentList').classList.remove('show'));
+  $('augmentCards').onclick=null;
+  $('augmentCards').addEventListener('pointerup',e=>{
+    e.preventDefault();
+    e.stopPropagation();
+    state.dragging=null;
+    const card=e.target.closest('[data-aug]');
+    if(card) chooseAugment(Number(card.dataset.aug));
+  });
+  bindTap('restartGameBtn', ()=>location.reload());
+  bindTap('statsRetryBtn', ()=>location.reload());
+  bindTap('statsCloseBtn', ()=>$('clearStats').style.display='none');
   function setSpeed(v){
     state.speed=v;
     sfx('speed');
@@ -2321,7 +2354,11 @@
   updateStartLockUI();
   setInterval(updateStartLockUI,1000);
 
-$('startBtn').onclick = ()=>{
+$('startBtn').onclick=null;
+  $('startBtn').addEventListener('pointerup',e=>{
+    e.preventDefault();
+    e.stopPropagation();
+    state.dragging=null;
     initAudio();
     if(!registerGameStartAttempt()) return;
     const btn=$('startBtn');
@@ -2336,7 +2373,7 @@ $('startBtn').onclick = ()=>{
       state.last=performance.now();
       loop(state.last);
     }, 220);
-  };
+  });
 
   function loop(now){
     const updateInterval = state.lowMode ? 1000/30 : 0;

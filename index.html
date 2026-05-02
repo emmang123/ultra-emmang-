@@ -246,7 +246,7 @@
 <div id="app">
   <canvas id="cv"></canvas>
   <div id="ui">
-    <div class="versionBadge" id="gameVersion">v0.43</div>
+    <div class="versionBadge" id="gameVersion">v0.45</div>
     <div class="safeTop">
       <div class="topRow">
         <div class="panel badge"><div class="label">WAVE</div><div class="value" id="wave">1</div><div class="sub" id="stageType">일반</div></div>
@@ -330,7 +330,7 @@
   <div id="titleScreen">
     <div class="titleHero">
       <div class="titleOverlay"></div>
-      <div class="versionBadge" id="titleVersion">v0.43</div>
+      <div class="versionBadge" id="titleVersion">v0.45</div>
       <div class="titleSpark s1"></div>
       <div class="titleSpark s2"></div>
       <div class="titleSpark s3"></div>
@@ -462,7 +462,7 @@
 
 <script>
 (()=>{
-  const GAME_VERSION = 'v0.43';
+  const GAME_VERSION = 'v0.45';
 
   // GitHub Pages / 카톡 인앱브라우저 캐시 꼬임 완화.
   // 저장 데이터(localStorage)는 유지하고, 서비스워커/뒤로가기 캐시만 정리한다.
@@ -571,7 +571,7 @@
     mergeNeed:3,
     rankDamageMul:{일반:1.00,고급:1.25,희귀:2.00,영웅:3.65,전설:7.80,신화:1.00,에픽:1.00},
     rankRateMul:{일반:1.00,고급:1.12,희귀:1.28,영웅:1.46,전설:1.68,신화:4.2,에픽:1.00},
-    rankRangeAdd:{일반:0.00,고급:0.045,희귀:0.095,영웅:0.17,전설:0.37,신화:0.22,에픽:0.05},
+    rankRangeAdd:{일반:0.00,고급:0.045,희귀:0.095,영웅:0.23,전설:0.68,신화:0.22,에픽:0.05},
     sell:{일반:4,고급:12,희귀:36,영웅:108,전설:324,신화:0,에픽:300},
     unitBase:{
       매실:{dmg:13,rate:0.95,range:0.125,move:12},
@@ -1130,7 +1130,7 @@
     state.units.push({
       id:Math.random(), race, rank,
       x:p.x, y:p.y, tx:a.x, ty:a.y,
-      ax:a.x, ay:a.y, homeSide:a.side, homePos:a.pos, manual:false, settled:false,
+      ax:a.x, ay:a.y, homeSide:a.side, homePos:a.pos, manual:false, userPlaced:false, settled:false,
       slotOffset:rand(-18,18), lastMoveTarget:null, moveThink:999,
       idleOutRange:0, noHitTime:0, holdTimer:999,
       target:null, targetBest:Infinity, targetThink:rand(0,.18),
@@ -1495,7 +1495,7 @@
 
       // 플레이어가 너무 안쪽/엉뚱한 곳에 둬서 한 바퀴 가까이 아무것도 못 때리면 예외적으로 재배치.
       // 일반적인 경우에는 계속 고정, 완전 사각지대일 때만 자동으로 벽 쪽 공격 가능 지점으로 이동한다.
-      if(state.mobs.length && (!target || best > power.range)){
+      if(!u.userPlaced && state.mobs.length && (!target || best > power.range)){
         u.noHitTime = (u.noHitTime || 0) + dt;
         if(u.noHitTime > 60){
           const ref = target || state.mobs[Math.floor(state.mobs.length*.5)] || state.mobs[0];
@@ -2430,7 +2430,7 @@
   });
   cv.addEventListener('pointermove',e=>{
     if(!state.dragging) return; const p=pointerPos(e); const ib=innerBox(); const u=state.units.find(x=>x.id===state.dragging); if(!u) return;
-    u.x=clamp(p.x,ib.x+12,ib.x+ib.w-12); u.y=clamp(p.y,ib.y+12,ib.y+ib.h-12); u.tx=u.x; u.ty=u.y; setUnitHomeFromPosition(u); u.ax=u.x; u.ay=u.y; u.manual=true; u.settled=true; u.holdTimer=999; u.moveThink=999;
+    u.x=clamp(p.x,ib.x+12,ib.x+ib.w-12); u.y=clamp(p.y,ib.y+12,ib.y+ib.h-12); u.tx=u.x; u.ty=u.y; setUnitHomeFromPosition(u); u.ax=u.x; u.ay=u.y; u.manual=true; u.userPlaced=true; u.settled=true; u.holdTimer=999; u.moveThink=999;
   });
   cv.addEventListener('pointerup',()=>state.dragging=null); cv.addEventListener('pointercancel',()=>state.dragging=null); document.addEventListener('pointerup',()=>state.dragging=null); document.addEventListener('pointercancel',()=>state.dragging=null);
 

@@ -215,7 +215,7 @@
 <div id="app">
   <canvas id="cv"></canvas>
   <div id="ui">
-    <div class="versionBadge" id="gameVersion">v0.27</div>
+    <div class="versionBadge" id="gameVersion">v0.28</div>
     <div class="safeTop">
       <div class="topRow">
         <div class="panel badge"><div class="label">WAVE</div><div class="value" id="wave">1</div><div class="sub" id="stageType">일반</div></div>
@@ -299,7 +299,7 @@
   <div id="titleScreen">
     <div class="titleHero">
       <div class="titleOverlay"></div>
-      <div class="versionBadge" id="titleVersion">v0.27</div>
+      <div class="versionBadge" id="titleVersion">v0.28</div>
       <div class="titleSpark s1"></div>
       <div class="titleSpark s2"></div>
       <div class="titleSpark s3"></div>
@@ -345,8 +345,9 @@
   let W=0,H=0,DPR=1;
   function resize(){
     const r = cv.getBoundingClientRect();
-    DPR = Math.min(2, window.devicePixelRatio || 1);
     W = r.width; H = r.height;
+    const mobile = r.width <= 520 || /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    DPR = Math.min(mobile ? 1.35 : 1.75, window.devicePixelRatio || 1);
     cv.width = W * DPR; cv.height = H * DPR;
     ctx.setTransform(DPR,0,0,DPR,0,0);
   }
@@ -703,6 +704,13 @@
   function rand(a,b){return a+Math.random()*(b-a)}
   function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
   function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+  function perfScale(){
+    if(state && state.lowMode) return 0.28;
+    if(state && state.speed >= 4) return 0.38;
+    if(state && state.speed >= 2) return 0.65;
+    return 1;
+  }
+  function allowFx(prob=1){ return Math.random() < prob * perfScale(); }
 
   function boardMetrics(){
     // Mobile browser toolbars reduce real vertical space, so the battlefield must stay
@@ -1023,7 +1031,7 @@
         bestRank=rank;
         bestRace=race;
       }
-      for(let j=0;j<(state.lowMode?3:8);j++) state.fx.push({kind:'spark',x:W*.5,y:H*.43,vx:rand(-180,180),vy:rand(-220,80),life:rand(.35,.85),color:rankColors[rank],size:rand(3,8)});
+      for(let j=0;j<(state.lowMode?2:(state.speed>=4?3:6));j++) if(allowFx(.85)) state.fx.push({kind:'spark',x:W*.5,y:H*.43,vx:rand(-180,180),vy:rand(-220,80),life:rand(.35,.85),color:rankColors[rank],size:rand(3,8)});
     }
 
     if(['희귀','영웅','전설','신화','에픽'].includes(bestRank)){
@@ -1037,7 +1045,7 @@
   function showGet(rank,race){
     if(['희귀','영웅','전설','신화','에픽'].includes(rank)) burst(rank,race);
     else toast(`${race}(${rank}) 획득!`);
-    for(let i=0;i<(state.lowMode?8:24);i++) state.fx.push({kind:'spark',x:W*.5,y:H*.43,vx:rand(-180,180),vy:rand(-220,80),life:rand(.35,.85),color:rankColors[rank],size:rand(3,8)});
+    for(let i=0;i<(state.lowMode?5:(state.speed>=4?8:18));i++) if(allowFx(.9)) state.fx.push({kind:'spark',x:W*.5,y:H*.43,vx:rand(-180,180),vy:rand(-220,80),life:rand(.35,.85),color:rankColors[rank],size:rand(3,8)});
   }
 
   function mergeUnit(race,rank){
@@ -1128,14 +1136,14 @@
         other.flash=.09;
       }
 
-      if(u.race!=='신화' && splashRadius>0){
-        state.fx.push({kind:'splash',x:m.x,y:m.y,r:splashRadius,life:.22,color:raceColors[u.race]});
+      if(u.race!=='신화' && splashRadius>0 && allowFx(.55)){
+        state.fx.push({kind:'splash',x:m.x,y:m.y,r:splashRadius,life:.18,color:raceColors[u.race]});
       }
     }
     const kind = u.race==='매실'?'laser':u.race==='코인조망'?'orb':u.race==='참직'?'spit':'myth';
-    sfx(kind==='laser'?'attack_laser':kind==='orb'?'attack_orb':kind==='spit'?'attack_spit':'legend');
-    state.shots.push({kind,x:u.x,y:u.y,tx:m.x,ty:m.y,life:kind==='laser'?.11:.28,t:0,color:raceColors[u.race]});
-    for(let i=0;i<3;i++) state.fx.push({kind:'hit',x:m.x+rand(-5,5),y:m.y+rand(-5,5),vx:rand(-20,20),vy:rand(-50,0),life:.22,color:raceColors[u.race],size:rand(2,5)});
+    if(allowFx(state.speed>=4?.25:.7)) sfx(kind==='laser'?'attack_laser':kind==='orb'?'attack_orb':kind==='spit'?'attack_spit':'legend');
+    if(allowFx(.65)) state.shots.push({kind,x:u.x,y:u.y,tx:m.x,ty:m.y,life:kind==='laser'?.10:.22,t:0,color:raceColors[u.race]});
+    for(let i=0;i<(state.lowMode?1:(state.speed>=4?1:2));i++) if(allowFx(.75)) state.fx.push({kind:'hit',x:m.x+rand(-5,5),y:m.y+rand(-5,5),vx:rand(-20,20),vy:rand(-50,0),life:.22,color:raceColors[u.race],size:rand(2,5)});
   }
 
 
@@ -1255,10 +1263,17 @@
 
   function chooseTargetForUnit(u){
     let best=null, bestScore=Infinity;
+    let mobs=state.mobs;
+
+    // 몬스터가 많이 쌓이면 전체가 아니라 진행도가 높은 후보 위주로 검사.
+    // 계산량을 줄이면서도 실제 방어 체감은 앞쪽 몬스터 우선이라 자연스럽다.
+    if(mobs.length > 36){
+      mobs = [...mobs].sort((a,b)=>b.t-a.t).slice(0, state.lowMode ? 30 : 44);
+    }
+
     if(u.race==='야코'){
-      // 야코는 이미 락다운된 몬스터를 다시 찍지 않게 우선 회피한다.
-      const unlocked = state.mobs.filter(m=>(m.lockdown||0)<=0);
-      const pool = unlocked.length ? unlocked : state.mobs;
+      const unlocked = mobs.filter(m=>(m.lockdown||0)<=0);
+      const pool = unlocked.length ? unlocked : mobs;
       for(const m of pool){
         const d=Math.hypot(m.x-u.x,m.y-u.y);
         if(d<bestScore){ bestScore=d; best=m; }
@@ -1266,14 +1281,13 @@
       return {target:best,best:bestScore};
     }
     if(u.race==='신화'){
-      // 앰망진창은 전맵 사거리라, 가장 앞서가거나 위험한 몬스터 위주로 찍는다.
-      for(const m of state.mobs){
+      for(const m of mobs){
         const score = -m.t*1000 + ((m.lockdown||0)>0 ? 120 : 0);
         if(score<bestScore){ bestScore=score; best=m; }
       }
       return {target:best,best:best?Math.hypot(best.x-u.x,best.y-u.y):Infinity};
     }
-    for(const m of state.mobs){
+    for(const m of mobs){
       const d=Math.hypot(m.x-u.x,m.y-u.y);
       if(d<bestScore){ bestScore=d; best=m; }
     }
@@ -1399,7 +1413,7 @@
     state.fx = state.fx.filter(f=>{
       f.life -= dt; f.x += (f.vx||0)*dt; f.y += (f.vy||0)*dt; if(f.kind==='spark' || f.kind==='hit') f.vy += 180*dt; return f.life>0;
     });
-    const cap = state.lowMode ? 45 : 120;
+    const cap = state.lowMode ? 28 : (state.speed>=4 ? 45 : state.speed>=2 ? 70 : 95);
     if(state.fx.length > cap) state.fx.splice(0, state.fx.length-cap);
   }
 
@@ -2060,7 +2074,7 @@
       if(f.kind==='spark'){ ctx.fillRect(f.x,f.y,f.size,f.size); }
       else if(f.kind==='hit'){ ctx.beginPath(); ctx.arc(f.x,f.y,f.size,0,7); ctx.fill(); }
       else if(f.kind==='ensnare'){ ctx.globalAlpha=Math.max(0,f.life); ctx.strokeStyle=f.color; ctx.lineWidth=4; ctx.setLineDash([8,6]); ctx.beginPath(); ctx.arc(f.x,f.y,f.r,0,7); ctx.stroke(); ctx.setLineDash([]); }
-      else if(f.kind==='storm'){ ctx.globalAlpha=Math.max(0,Math.min(1,f.life/2)); ctx.strokeStyle=f.color; ctx.lineWidth=3; for(let i=0;i<(state.lowMode?2:5);i++){ ctx.beginPath(); ctx.arc(f.x+Math.sin(f.life*9+i)*8,f.y+Math.cos(f.life*8+i)*8,f.r*(.35+i*.13),0,7); ctx.stroke(); } }
+      else if(f.kind==='storm'){ ctx.globalAlpha=Math.max(0,Math.min(1,f.life/2)); ctx.strokeStyle=f.color; ctx.lineWidth=3; for(let i=0;i<(state.lowMode?1:(state.speed>=4?1:4));i++){ ctx.beginPath(); ctx.arc(f.x+Math.sin(f.life*9+i)*8,f.y+Math.cos(f.life*8+i)*8,f.r*(.35+i*.13),0,7); ctx.stroke(); } }
       else if(f.kind==='lockdown'){ ctx.globalAlpha=Math.max(0,f.life); ctx.strokeStyle=f.color; ctx.lineWidth=4; ctx.setLineDash([6,4]); ctx.strokeRect(f.x-f.r,f.y-f.r,f.r*2,f.r*2); ctx.setLineDash([]); }
       else if(f.kind==='splash'){ ctx.globalAlpha=Math.max(0,f.life*4); ctx.strokeStyle=f.color; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(f.x,f.y,f.r,0,7); ctx.stroke(); }
       ctx.restore();

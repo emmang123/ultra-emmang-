@@ -131,6 +131,9 @@
   .menuGrid.epicRerollGrid .menu-util small{font-size:10px;line-height:1.15}
   .menuGrid button{min-height:48px;border:0;border-radius:14px;font-weight:1000;color:white;border:2px solid rgba(255,255,255,.12);border-bottom:5px solid rgba(0,0,0,.38)}
   .menu-util{background:linear-gradient(180deg,#4f5867,#262d39)}
+  .menu-upgrade{background:linear-gradient(180deg,#ffe977,#ffb42d);border-bottom-color:#8f5714;color:#090600!important;font-size:18px;text-shadow:0 1px 0 rgba(255,255,255,.45)}
+  .menu-upgrade small{color:#090600!important;font-size:12px;font-weight:1000}
+  .menu-merge{background:linear-gradient(180deg,#c88b45,#7a431f);border-bottom-color:#3f1f0d;color:#090600!important;font-size:18px;text-shadow:0 1px 0 rgba(255,255,255,.35)}
   .menu-sell{background:linear-gradient(180deg,#d76d7b,#8f2b3f)}
   .menu-back{background:linear-gradient(180deg,#5b5b5b,#2e2e2e)}
 
@@ -246,7 +249,7 @@
 <div id="app">
   <canvas id="cv"></canvas>
   <div id="ui">
-    <div class="versionBadge" id="gameVersion">v0.45</div>
+    <div class="versionBadge" id="gameVersion">v0.48</div>
     <div class="safeTop">
       <div class="topRow">
         <div class="panel badge"><div class="label">WAVE</div><div class="value" id="wave">1</div><div class="sub" id="stageType">일반</div></div>
@@ -330,7 +333,7 @@
   <div id="titleScreen">
     <div class="titleHero">
       <div class="titleOverlay"></div>
-      <div class="versionBadge" id="titleVersion">v0.45</div>
+      <div class="versionBadge" id="titleVersion">v0.48</div>
       <div class="titleSpark s1"></div>
       <div class="titleSpark s2"></div>
       <div class="titleSpark s3"></div>
@@ -462,7 +465,7 @@
 
 <script>
 (()=>{
-  const GAME_VERSION = 'v0.45';
+  const GAME_VERSION = 'v0.48';
 
   // GitHub Pages / 카톡 인앱브라우저 캐시 꼬임 완화.
   // 저장 데이터(localStorage)는 유지하고, 서비스워커/뒤로가기 캐시만 정리한다.
@@ -2334,8 +2337,8 @@
     $('menu').style.display='block'; $('mainActions').classList.add('hidden'); $('raceRow').classList.add('hidden');
     $('menu').innerHTML=`<h3>${race}</h3>
       <div class="menuGrid raceMenuGrid">
-        <button class="menu-util wide" data-act="up">공격력 강화<br><small>${upgradeCost(race)}G</small></button>
-        <button class="menu-util wide" data-act="merge">${balance.mergeNeed}합성</button>
+        <button class="menu-util menu-upgrade wide" data-act="up">공격력 강화<br><small>${upgradeCost(race)}G</small></button>
+        <button class="menu-util menu-merge wide" data-act="merge">${balance.mergeNeed}유닛 합성</button>
         <button class="menu-sell bottom" data-act="sell">판매</button>
         <button class="menu-sell bottom" data-act="sellAll">전체 판매</button>
         <button class="menu-back bottom" data-act="back">뒤로가기</button>

@@ -249,7 +249,7 @@
 <div id="app">
   <canvas id="cv"></canvas>
   <div id="ui">
-    <div class="versionBadge" id="gameVersion">v0.49</div>
+    <div class="versionBadge" id="gameVersion">v0.50</div>
     <div class="safeTop">
       <div class="topRow">
         <div class="panel badge"><div class="label">WAVE</div><div class="value" id="wave">1</div><div class="sub" id="stageType">일반</div></div>
@@ -333,7 +333,7 @@
   <div id="titleScreen">
     <div class="titleHero">
       <div class="titleOverlay"></div>
-      <div class="versionBadge" id="titleVersion">v0.49</div>
+      <div class="versionBadge" id="titleVersion">v0.50</div>
       <div class="titleSpark s1"></div>
       <div class="titleSpark s2"></div>
       <div class="titleSpark s3"></div>
@@ -465,7 +465,7 @@
 
 <script>
 (()=>{
-  const GAME_VERSION = 'v0.49';
+  const GAME_VERSION = 'v0.50';
 
   // GitHub Pages / 카톡 인앱브라우저 캐시 꼬임 완화.
   // 저장 데이터(localStorage)는 유지하고, 서비스워커/뒤로가기 캐시만 정리한다.
@@ -572,8 +572,8 @@
     rewardPer10Kills:10,
     spawnCount:40,
     mergeNeed:3,
-    rankDamageMul:{일반:1.00,고급:1.25,희귀:2.00,영웅:3.65,전설:7.80,신화:1.00,에픽:1.00},
-    rankRateMul:{일반:1.00,고급:1.12,희귀:1.28,영웅:1.46,전설:1.68,신화:4.2,에픽:1.00},
+    rankDamageMul:{일반:1.00,고급:1.25,희귀:2.00,영웅:3.10,전설:6.63,신화:1.00,에픽:1.00},
+    rankRateMul:{일반:1.00,고급:1.12,희귀:1.28,영웅:1.24,전설:1.43,신화:4.2,에픽:1.00},
     rankRangeAdd:{일반:0.00,고급:0.045,희귀:0.095,영웅:0.23,전설:0.68,신화:0.22,에픽:0.05},
     sell:{일반:4,고급:12,희귀:36,영웅:108,전설:324,신화:0,에픽:300},
     unitBase:{
@@ -581,9 +581,9 @@
       코인조망:{dmg:10,rate:1.08,range:0.115,move:11},
       참직:{dmg:8,rate:1.45,range:0.105,move:14},
       신화:{dmg:0,rate:2.4,range:2.0,move:14},
-      레전드박:{dmg:0,rate:0.30,range:0.15,move:12},
-      앰랖:{dmg:0,rate:0.30,range:0.15,move:12},
-      야코:{dmg:0,rate:0.333,range:0.15,move:12},
+      레전드박:{dmg:0,rate:0.27,range:0.135,move:12},
+      앰랖:{dmg:0,rate:0.27,range:0.135,move:12},
+      야코:{dmg:0,rate:0.300,range:0.135,move:12},
     },
     damageMatrix:{
       매실:{S:1,M:.5,L:.25},
@@ -1000,6 +1000,7 @@
     // 스테이지별 체력은 기획표 기준 고정값을 사용한다.
     // 7스테이지 272 유지, 13스테이지 800 수준으로 조정된 곡선.
     let hp = STAGE_HP[stage] || STAGE_HP[100] || 1000;
+    if(!boss && stage >= 51) hp = Math.round(hp * 1.10);
 
     let armor = stage < 5 ? 0 : 1 + Math.floor((stage-5)/4);
     let speed = 0.030 + Math.min(0.020, stage*0.00040);
@@ -1050,12 +1051,23 @@
   }
 
   function epicRate(){
-    // 아직 최초 획득하지 못한 에픽이 있으면 에픽 확률 2%, 전부 한 번씩 보면 1%.
-    return epicUnits.some(e=>!state.epicSeen[e]) ? 0.02 : 0.01;
+    // 아직 못 뽑은 에픽 종족이 있으면 전체 에픽 확률 2%.
+    // 에픽 3종을 모두 한 번 이상 뽑은 뒤에는 전체 에픽 확률 0.1%.
+    return epicUnits.some(e=>!state.epicSeen[e]) ? 0.02 : 0.001;
   }
   function pickEpicUnit(){
-    // 최초 획득 전 에픽은 가중치 2, 이미 얻은 에픽은 가중치 1.
-    const weights=epicUnits.map(e=>state.epicSeen[e]?1:2);
+    // 이미 최초 획득한 에픽은 이후 절대확률이 약 0.1% 수준에 가깝게 낮아지도록 가중치 조정.
+    const seenCount=epicUnits.filter(e=>state.epicSeen[e]).length;
+    const unseenCount=epicUnits.length-seenCount;
+    const totalRate=epicRate();
+    const seenAbs=0.001;
+    let weights;
+    if(unseenCount>0){
+      const unseenPool=Math.max(0.0001,totalRate-seenCount*seenAbs);
+      weights=epicUnits.map(e=>state.epicSeen[e]?seenAbs:(unseenPool/unseenCount));
+    }else{
+      weights=epicUnits.map(()=>1);
+    }
     let total=weights.reduce((a,b)=>a+b,0);
     let r=Math.random()*total;
     for(let i=0;i<epicUnits.length;i++){
@@ -1313,20 +1325,20 @@
   }
 
   function applyYakkoLock(u,target,damageScale=1){
-    const baseDamage = (55+state.aug.lockDamage) * damageScale;
+    const baseDamage = (49.5+state.aug.lockDamage*.9) * damageScale;
     const pctDamage = target.maxHp * (target.boss ? state.aug.yakkoLockBossPct : state.aug.yakkoLockPct) * damageScale;
     const amp = ((target.damageAmpTime||0)>0) ? (1+(target.damageAmp||0)) : 1;
 
     if(target.boss){
       // 보스도 락다운이 걸리되, 밸런스상 일반 몬스터보다 짧게 적용.
-      target.lockdown=Math.max(target.lockdown||0,0.75);
+      target.lockdown=Math.max(target.lockdown||0,0.675);
       const debuff = Math.max(1, Math.ceil(target.armor * .35));
       if(state.aug.yakkoBossArmorDebuff>0){
         target.armorDebuff = Math.max(target.armorDebuff||0, debuff);
         target.armorDebuffTime = Math.max(target.armorDebuffTime||0, 5);
       }
     }else{
-      target.lockdown=1.5;
+      target.lockdown=1.35;
     }
 
     target.hp -= (baseDamage + pctDamage) * (1+state.aug.globalDmg) * (target.boss?(1+state.aug.bossDmg):1) * amp;
@@ -1340,14 +1352,14 @@
 
     if(u.race==='신화'){
       // 초궁극의 앰망진창: 에픽 3종 능력을 모두 보유.
-      const ensnareRadius = W*.20*(1+state.aug.epicRange+state.aug.legendEnsnareRange);
-      const stormRadius = W*.20*(1+state.aug.epicRange+state.aug.amrapStormRange);
+      const ensnareRadius = W*.18*(1+state.aug.epicRange+state.aug.legendEnsnareRange);
+      const stormRadius = W*.18*(1+state.aug.epicRange+state.aug.amrapStormRange);
       for(const m of state.mobs){
         if(Math.hypot(m.x-target.x,m.y-target.y)<=ensnareRadius){
-          applyEnsnareTo(m, 11+state.aug.ensnareDuration+state.aug.legendEnsnareDuration, state.aug.legendDotPct, 0.0005, state.aug.legendDamageAmp);
+          applyEnsnareTo(m, 9.9+state.aug.ensnareDuration+state.aug.legendEnsnareDuration, state.aug.legendDotPct, 0.00045, state.aug.legendDamageAmp);
         }
         if(Math.hypot(m.x-target.x,m.y-target.y)<=stormRadius){
-          applyStormTo(m, 2.5, 4+state.aug.amrapStormTicks, 0.03+state.aug.amrapStormPct, 0.003+state.aug.amrapStormBossPct);
+          applyStormTo(m, 2.25, 4+state.aug.amrapStormTicks, 0.027+state.aug.amrapStormPct, 0.0027+state.aug.amrapStormBossPct);
         }
       }
       applyYakkoLock(u,target,1.0);
@@ -1360,12 +1372,12 @@
     }
 
     if(u.race==='레전드박'){
-      const duration = 10 + state.aug.ensnareDuration + state.aug.legendEnsnareDuration;
-      const radius = W*.15*(1+state.aug.epicRange+state.aug.legendEnsnareRange);
+      const duration = 9 + state.aug.ensnareDuration + state.aug.legendEnsnareDuration;
+      const radius = W*.135*(1+state.aug.epicRange+state.aug.legendEnsnareRange);
       for(const m of state.mobs){
         if(Math.hypot(m.x-target.x,m.y-target.y)<=radius){
           applyEnsnareTo(m, duration, state.aug.legendDotPct, 0.0005, state.aug.legendDamageAmp);
-          m.hp-=6*(1+state.aug.globalDmg)*(m.boss?(1+state.aug.bossDmg):1);
+          m.hp-=5.4*(1+state.aug.globalDmg)*(m.boss?(1+state.aug.bossDmg):1);
         }
       }
       state.fx.push({kind:'ensnare',x:target.x,y:target.y,r:radius,life:.75,color:'#39ff66'});
@@ -1375,13 +1387,13 @@
     }
 
     if(u.race==='앰랖'){
-      const radius = W*.145*(1+state.aug.epicRange+state.aug.amrapStormRange);
+      const radius = W*.1305*(1+state.aug.epicRange+state.aug.amrapStormRange);
       const ticks = 4 + state.aug.amrapStormTicks;
       for(const m of state.mobs){
         if(Math.hypot(m.x-target.x,m.y-target.y)<=radius){
           // 기본 앰랖 스톰: 일반 몬스터 틱당 최대체력 3%, 보스는 0.3%.
           // 전용 증강은 일반 +10%, 보스 +0.1%까지 추가.
-          applyStormTo(m, ticks*.5+.25, ticks, 0.03+state.aug.amrapStormPct, 0.003+state.aug.amrapStormBossPct);
+          applyStormTo(m, ticks*.45+.225, ticks, 0.027+state.aug.amrapStormPct, 0.0027+state.aug.amrapStormBossPct);
         }
       }
       state.fx.push({kind:'storm',x:target.x,y:target.y,r:radius,life:2.5,color:'#b57cff'});
@@ -1557,7 +1569,7 @@
         while(m.stormTick<=0 && (m.stormTicks||0)>0){
           const pct = m.boss ? (m.stormBossPct||0.003) : (m.stormPct||0.03);
           const amp = ((m.damageAmpTime||0)>0) ? (1+(m.damageAmp||0)) : 1;
-          m.hp -= Math.max(1, 10 + m.maxHp * pct) * (1+state.aug.globalDmg) * (m.boss?(1+state.aug.bossDmg):1) * amp;
+          m.hp -= Math.max(1, 9 + m.maxHp * pct) * (1+state.aug.globalDmg) * (m.boss?(1+state.aug.bossDmg):1) * amp;
           m.flash=.12;
           m.stormTicks--;
           m.stormTick+=0.5;
@@ -1860,24 +1872,24 @@
     {id:'boss',title:'보스 저격',stat:'bossDmg',cap:.80,tiers:{common:{v:.08,txt:'보스에게 주는 피해 +8%'},advanced:{v:.13,txt:'보스에게 주는 피해 +13%'},rare:{v:.20,txt:'보스에게 주는 피해 +20%'}}},
     {id:'sprange',title:'폭발 반경 확대',stat:'splashRange',cap:.70,tiers:{common:{v:.10,txt:'스플래시 범위 +10%'},advanced:{v:.16,txt:'스플래시 범위 +16%'},rare:{v:.25,txt:'스플래시 범위 +25%'}}},
     {id:'spdmg',title:'파편 강화',stat:'splashDmg',cap:.60,tiers:{common:{v:.08,txt:'스플래시 데미지 +8%'},advanced:{v:.13,txt:'스플래시 데미지 +13%'},rare:{v:.20,txt:'스플래시 데미지 +20%'}}},
-    {id:'epicrate',title:'에픽 가속',stat:'epicRate',cap:.70,tiers:{common:{v:.10,txt:'에픽 유닛 쿨타임 10% 감소'},advanced:{v:.16,txt:'에픽 유닛 쿨타임 16% 감소'},rare:{v:.25,txt:'에픽 유닛 쿨타임 25% 감소'}}},
-    {id:'epicrange',title:'에픽 영향권',stat:'epicRange',cap:.70,tiers:{common:{v:.10,txt:'에픽 스킬 범위 +10%'},advanced:{v:.16,txt:'에픽 스킬 범위 +16%'},rare:{v:.25,txt:'에픽 스킬 범위 +25%'}}},
+    {id:'epicrate',title:'에픽 가속',stat:'epicRate',cap:.63,tiers:{common:{v:.09,txt:'에픽 유닛 쿨타임 9% 감소'},advanced:{v:.144,txt:'에픽 유닛 쿨타임 14.4% 감소'},rare:{v:.225,txt:'에픽 유닛 쿨타임 22.5% 감소'}}},
+    {id:'epicrange',title:'에픽 영향권',stat:'epicRange',cap:.63,tiers:{common:{v:.09,txt:'에픽 스킬 범위 +9%'},advanced:{v:.144,txt:'에픽 스킬 범위 +14.4%'},rare:{v:.225,txt:'에픽 스킬 범위 +22.5%'}}},
 
     // 레전드박 전용
-    {id:'legend_dur',epic:'레전드박',title:'레전드박: 끈질긴 그물',stat:'legendEnsnareDuration',cap:4,fixedTier:'advanced',v:2,txt:'인스네어 지속 +2초'},
-    {id:'legend_amp',epic:'레전드박',title:'레전드박: 약점 포박',stat:'legendDamageAmp',cap:.30,fixedTier:'rare',v:.15,txt:'인스네어 대상 받는 피해 +15%'},
-    {id:'legend_range',epic:'레전드박',title:'레전드박: 광역 거미줄',stat:'legendEnsnareRange',cap:.60,fixedTier:'advanced',v:.30,txt:'인스네어 범위 +30%'},
-    {id:'legend_dot',epic:'레전드박',title:'레전드박: 독성 거미줄',stat:'legendDotPct',cap:.05,fixedTier:'rare',v:.05,txt:'인스네어 대상 초당 최대체력 5% 피해'},
+    {id:'legend_dur',epic:'레전드박',title:'레전드박: 끈질긴 그물',stat:'legendEnsnareDuration',cap:3.6,fixedTier:'advanced',v:1.8,txt:'인스네어 지속 +1.8초'},
+    {id:'legend_amp',epic:'레전드박',title:'레전드박: 약점 포박',stat:'legendDamageAmp',cap:.27,fixedTier:'rare',v:.135,txt:'인스네어 대상 받는 피해 +13.5%'},
+    {id:'legend_range',epic:'레전드박',title:'레전드박: 광역 거미줄',stat:'legendEnsnareRange',cap:.54,fixedTier:'advanced',v:.27,txt:'인스네어 범위 +27%'},
+    {id:'legend_dot',epic:'레전드박',title:'레전드박: 독성 거미줄',stat:'legendDotPct',cap:.045,fixedTier:'rare',v:.045,txt:'인스네어 대상 초당 최대체력 4.5% 피해'},
 
     // 앰랖 전용
     {id:'amrap_tick',epic:'앰랖',title:'앰랖: 폭풍 연장',stat:'amrapStormTicks',cap:2,fixedTier:'advanced',v:1,txt:'스톰 틱 수 +1'},
-    {id:'amrap_range',epic:'앰랖',title:'앰랖: 폭풍 확장',stat:'amrapStormRange',cap:.45,fixedTier:'advanced',v:.15,txt:'스톰 범위 +15%'},
-    {id:'amrap_pct',epic:'앰랖',title:'앰랖: 차원 붕괴',stat:'amrapStormPct',cap:.07,fixedTier:'rare',v:.07,txt:'스톰 틱당 최대체력 7% 추가 피해 / 보스 0.1%'},
-    {id:'amrap_cd',epic:'앰랖',title:'앰랖: 고속 시전',stat:'amrapCooldown',cap:.45,fixedTier:'advanced',v:.15,txt:'스톰 쿨타임 -15%'},
+    {id:'amrap_range',epic:'앰랖',title:'앰랖: 폭풍 확장',stat:'amrapStormRange',cap:.405,fixedTier:'advanced',v:.135,txt:'스톰 범위 +13.5%'},
+    {id:'amrap_pct',epic:'앰랖',title:'앰랖: 차원 붕괴',stat:'amrapStormPct',cap:.063,fixedTier:'rare',v:.063,txt:'스톰 틱당 최대체력 6.3% 추가 피해 / 보스 0.09%'},
+    {id:'amrap_cd',epic:'앰랖',title:'앰랖: 고속 시전',stat:'amrapCooldown',cap:.405,fixedTier:'advanced',v:.135,txt:'스톰 쿨타임 -13.5%'},
 
     // 야코 전용
-    {id:'yakko_pct',epic:'야코',title:'야코: 과부하 락다운',stat:'yakkoLockPct',cap:.15,fixedTier:'rare',v:.15,txt:'락다운 대상 최대체력 15% 피해 / 보스 0.5%'},
-    {id:'yakko_cd',epic:'야코',title:'야코: 연속 락다운',stat:'yakkoCooldown',cap:.40,fixedTier:'advanced',v:.20,txt:'락다운 쿨타임 -20%'},
+    {id:'yakko_pct',epic:'야코',title:'야코: 과부하 락다운',stat:'yakkoLockPct',cap:.135,fixedTier:'rare',v:.135,txt:'락다운 대상 최대체력 13.5% 피해 / 보스 0.45%'},
+    {id:'yakko_cd',epic:'야코',title:'야코: 연속 락다운',stat:'yakkoCooldown',cap:.36,fixedTier:'advanced',v:.18,txt:'락다운 쿨타임 -18%'},
     {id:'yakko_bounce',epic:'야코',title:'야코: 연쇄 구속',stat:'yakkoBounce',cap:1,fixedTier:'rare',v:1,txt:'락다운이 주변 1마리에게 튐'},
     {id:'yakko_boss',epic:'야코',title:'야코: 보스 해킹',stat:'yakkoBossArmorDebuff',cap:1,fixedTier:'rare',v:1,txt:'보스에게 락다운 대신 방어력 감소 디버프'}
   ];
@@ -1909,11 +1921,11 @@
         desc:def.txt,summary:def.txt,epic:def.epic,
         apply:()=>{
           if(def.id==='amrap_pct'){
-            state.aug.amrapStormPct=Math.min(.07,state.aug.amrapStormPct+.07);
-            state.aug.amrapStormBossPct=Math.min(.001,state.aug.amrapStormBossPct+.001);
+            state.aug.amrapStormPct=Math.min(.063,state.aug.amrapStormPct+.063);
+            state.aug.amrapStormBossPct=Math.min(.0009,state.aug.amrapStormBossPct+.0009);
           }else if(def.id==='yakko_pct'){
-            state.aug.yakkoLockPct=Math.min(.15,state.aug.yakkoLockPct+.15);
-            state.aug.yakkoLockBossPct=Math.min(.005,state.aug.yakkoLockBossPct+.005);
+            state.aug.yakkoLockPct=Math.min(.135,state.aug.yakkoLockPct+.135);
+            state.aug.yakkoLockBossPct=Math.min(.0045,state.aug.yakkoLockBossPct+.0045);
           }else{
             state.aug[def.stat]=Math.min(def.cap,(state.aug[def.stat]||0)+value);
           }
@@ -2114,11 +2126,16 @@
       else drawUndead(m.type,baseCol,hitMix,m.variant||0);
     }
     ctx.restore();
-    // hp bar
+  }
+
+  function drawMonsterHud(m){
+    const bob=Math.sin(m.anim)*1.8;
+    const x=m.x, y=m.y+bob;
+    // HP바/숫자/상태이상 표시는 몬스터 몸체를 전부 그린 뒤 마지막 레이어에서 그림.
     const bw = m.boss?74:40, bh=6;
     ctx.fillStyle='rgba(0,0,0,.72)'; ctx.fillRect(x-bw/2,y-(m.boss?28:18),bw,bh);
     ctx.fillStyle='#ff5a5a'; ctx.fillRect(x-bw/2,y-(m.boss?28:18),bw*Math.max(0,m.hp/m.maxHp),bh);
-    ctx.font='900 10px system-ui'; ctx.textAlign='center'; ctx.lineWidth=3; ctx.strokeStyle='rgba(0,0,0,.65)';
+    ctx.font='900 10px system-ui'; ctx.textAlign='center'; ctx.lineWidth=3; ctx.strokeStyle='rgba(0,0,0,.72)';
     ctx.strokeText(hpText(m.hp),x,y-(m.boss?31:21)); ctx.fillStyle='white'; ctx.fillText(hpText(m.hp),x,y-(m.boss?31:21));
     if(m.ensnare>0){
       ctx.strokeStyle='rgba(57,255,102,.85)'; ctx.lineWidth=2;
@@ -2330,6 +2347,7 @@
     for(const m of state.mobs) drawMonster(m);
     for(const u of state.units) drawUnit(u);
     drawShots(); drawFx();
+    for(const m of state.mobs) drawMonsterHud(m);
     if(state.mobs.length >= 60){ ctx.fillStyle='rgba(255,0,0,.06)'; ctx.fillRect(0,0,W,H); }
   }
 

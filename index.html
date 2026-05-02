@@ -218,7 +218,7 @@
 <div id="app">
   <canvas id="cv"></canvas>
   <div id="ui">
-    <div class="versionBadge" id="gameVersion">v0.30</div>
+    <div class="versionBadge" id="gameVersion">v0.32</div>
     <div class="safeTop">
       <div class="topRow">
         <div class="panel badge"><div class="label">WAVE</div><div class="value" id="wave">1</div><div class="sub" id="stageType">일반</div></div>
@@ -302,7 +302,7 @@
   <div id="titleScreen">
     <div class="titleHero">
       <div class="titleOverlay"></div>
-      <div class="versionBadge" id="titleVersion">v0.30</div>
+      <div class="versionBadge" id="titleVersion">v0.32</div>
       <div class="titleSpark s1"></div>
       <div class="titleSpark s2"></div>
       <div class="titleSpark s3"></div>
@@ -342,7 +342,7 @@
 
 <script>
 (()=>{
-  const GAME_VERSION = 'v0.30';
+  const GAME_VERSION = 'v0.32';
 
   // GitHub Pages / 카톡 인앱브라우저 캐시 꼬임 완화.
   // 저장 데이터(localStorage)는 유지하고, 서비스워커/뒤로가기 캐시만 정리한다.
@@ -1364,17 +1364,6 @@
         u.settled=true;
       }
 
-      // 겹침 보정은 아주 약하게만 유지. 자리를 크게 밀려나지 않게 한다.
-      for(const other of state.units){
-        if(other===u) continue;
-        const dx2=u.x-other.x, dy2=u.y-other.y, d2=Math.hypot(dx2,dy2), min=13;
-        if(d2>0 && d2<min){
-          const push=(min-d2)*0.035;
-          u.x += dx2/d2*push;
-          u.y += dy2/d2*push;
-        }
-      }
-
       let attackCheck=chooseTargetForUnit(u);
       let target=attackCheck.target, best=attackCheck.best;
       if((!target || best>power.range) && u.cool<=0) {
@@ -1387,7 +1376,7 @@
       // 일반적인 경우에는 계속 고정, 완전 사각지대일 때만 자동으로 벽 쪽 공격 가능 지점으로 이동한다.
       if(state.mobs.length && (!target || best > power.range)){
         u.noHitTime = (u.noHitTime || 0) + dt;
-        if(u.noHitTime > 18){
+        if(u.noHitTime > 60){
           const ref = target || state.mobs[Math.floor(state.mobs.length*.5)] || state.mobs[0];
           if(ref){
             const a=targetAnchorForUnit(u,ref,power);
@@ -2130,18 +2119,17 @@
     }
   }
 
-  function render(now=0){
+  function renderFrame(now=0){
     const renderInterval = state.lowMode ? 1000/30 : 0;
-    if(!renderInterval || now-state.renderLast >= renderInterval){
-      state.renderLast = now;
-      ctx.clearRect(0,0,W,H);
-      drawBg(); drawPath();
-      for(const m of state.mobs) drawMonster(m);
-      for(const u of state.units) drawUnit(u);
-      drawShots(); drawFx();
-      if(state.mobs.length >= 60){ ctx.fillStyle='rgba(255,0,0,.06)'; ctx.fillRect(0,0,W,H); }
-    }
-    requestAnimationFrame(render);
+    if(renderInterval && now-state.renderLast < renderInterval) return;
+
+    state.renderLast = now;
+    ctx.clearRect(0,0,W,H);
+    drawBg(); drawPath();
+    for(const m of state.mobs) drawMonster(m);
+    for(const u of state.units) drawUnit(u);
+    drawShots(); drawFx();
+    if(state.mobs.length >= 60){ ctx.fillStyle='rgba(255,0,0,.06)'; ctx.fillRect(0,0,W,H); }
   }
 
   function openRaceMenu(race){
@@ -2439,6 +2427,7 @@ $('startBtn').onclick=null;
       $('titleScreen').style.display='none';
       state.running=true;
       state.last=performance.now();
+      state.renderLast=0;
       loop(state.last);
     }, 220);
   });
@@ -2446,15 +2435,18 @@ $('startBtn').onclick=null;
   function loop(now){
     const updateInterval = state.lowMode ? 1000/30 : 0;
     if(updateInterval && now-state.last < updateInterval){
+      renderFrame(now);
       requestAnimationFrame(loop);
       return;
     }
+
     const dt=Math.min(.05,(now-state.last)/1000);
     state.last=now;
     update(dt*state.speed);
+    renderFrame(now);
     requestAnimationFrame(loop);
   }
-  render(); setLowMode(false); updateUI();
+  setLowMode(false); renderFrame(0); updateUI();
 })();
 </script>
 </body>

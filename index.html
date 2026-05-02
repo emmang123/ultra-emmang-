@@ -215,7 +215,7 @@
 <div id="app">
   <canvas id="cv"></canvas>
   <div id="ui">
-    <div class="versionBadge" id="gameVersion">v0.24</div>
+    <div class="versionBadge" id="gameVersion">v0.26</div>
     <div class="safeTop">
       <div class="topRow">
         <div class="panel badge"><div class="label">WAVE</div><div class="value" id="wave">1</div><div class="sub" id="stageType">일반</div></div>
@@ -299,7 +299,7 @@
   <div id="titleScreen">
     <div class="titleHero">
       <div class="titleOverlay"></div>
-      <div class="versionBadge" id="titleVersion">v0.24</div>
+      <div class="versionBadge" id="titleVersion">v0.26</div>
       <div class="titleSpark s1"></div>
       <div class="titleSpark s2"></div>
       <div class="titleSpark s3"></div>
@@ -742,45 +742,48 @@
   }
 
   function chooseOpenWallAnchor(race,rank){
-    // 4개 벽 × 여러 위치 후보를 만들고,
-    // 기존 유닛들과 가장 덜 겹치는 위치를 선택한다.
-    // 이렇게 하면 일반 유닛은 생산되자마자 빈 벽 가까이 붙고,
-    // 고급/희귀 이상은 등급별 inset만큼 자연스럽게 안쪽에 자리잡는다.
+    // 몬스터가 11시 방향에서 나와 시계방향으로 돌기 때문에
+    // 유닛 배치는 북 → 동 → 남 → 서 순서로 채운다.
+    // 같은 벽 안에서는 기존 유닛과 가장 덜 겹치는 위치를 고른다.
     const temp={race,rank};
-    const positions=[.10,.22,.34,.46,.58,.70,.82,.94];
+    const positions=[.08,.19,.30,.41,.52,.63,.74,.85,.94];
+    const sideOrder=[0,1,2,3]; // 북, 동, 남, 서
     const sideCount=[0,0,0,0];
 
     for(const u of state.units){
       if(u.homeSide!==undefined) sideCount[u.homeSide]++;
     }
 
-    let best=null;
-    for(let side=0; side<4; side++){
-      for(const pos of positions){
-        temp.homeSide=side;
-        temp.homePos=pos;
-        const a=edgeAnchorForUnit(temp);
-
-        let minD=99999;
-        for(const u of state.units){
-          const ux = u.ax ?? u.x;
-          const uy = u.ay ?? u.y;
-          minD=Math.min(minD, Math.hypot(ux-a.x, uy-a.y));
-        }
-
-        // 같은 벽에 너무 몰리지 않게 페널티.
-        // 그래도 가까운 빈 공간이 있으면 그쪽을 선택.
-        const score = minD - sideCount[side]*18 + Math.random()*3;
-        if(!best || score>best.score) best={side,pos,x:a.x,y:a.y,score};
+    let chosenSide=3;
+    for(const side of sideOrder){
+      if(sideCount[side] < positions.length){
+        chosenSide=side;
+        break;
       }
     }
 
-    if(!best){
-      const side=Math.floor(rand(0,4));
-      const pos=rand(.10,.90);
-      temp.homeSide=side; temp.homePos=pos;
+    let best=null;
+    for(const pos of positions){
+      temp.homeSide=chosenSide;
+      temp.homePos=pos;
       const a=edgeAnchorForUnit(temp);
-      return {side,pos,x:a.x,y:a.y};
+
+      let minD=99999;
+      for(const u of state.units){
+        const ux = u.ax ?? u.x;
+        const uy = u.ay ?? u.y;
+        minD=Math.min(minD, Math.hypot(ux-a.x, uy-a.y));
+      }
+
+      const score = minD + Math.random()*2;
+      if(!best || score>best.score) best={side:chosenSide,pos,x:a.x,y:a.y,score};
+    }
+
+    if(!best){
+      temp.homeSide=chosenSide;
+      temp.homePos=.5;
+      const a=edgeAnchorForUnit(temp);
+      return {side:chosenSide,pos:.5,x:a.x,y:a.y};
     }
     return best;
   }
@@ -982,6 +985,7 @@
       ax:a.x, ay:a.y, homeSide:a.side, homePos:a.pos, manual:false, settled:false,
       slotOffset:rand(-18,18), lastMoveTarget:null, moveThink:999,
       idleOutRange:0, noHitTime:0, holdTimer:999,
+      spawnMove:true, spawnMoveTime:0,
       cool:rand(0,.35), step:Math.random()*6.28, face:1, pulse:0,
     });
   }
@@ -1293,12 +1297,28 @@
 
       const dx=u.tx-u.x, dy=u.ty-u.y, d=Math.hypot(dx,dy);
       if(d>1){
-        const step=Math.min(d,power.move*dt*.70);
+        if(u.spawnMove) u.spawnMoveTime = (u.spawnMoveTime || 0) + dt;
+
+        // 생산 직후에는 빈 벽으로 확실히 이동해야 하므로 이동 속도를 크게 올린다.
+        // 도착 후에는 기존처럼 고정 포탑처럼 동작.
+        const moveMul = u.spawnMove ? 4.2 : 0.70;
+        const step=Math.min(d,power.move*dt*moveMul);
         u.x += dx/d*step;
         u.y += dy/d*step;
-        u.step += dt*3.0;
+        u.step += dt*(u.spawnMove ? 6.0 : 3.0);
+
+        // 너무 오래 이동 중이면 강제로 목표 지점 근처까지 붙여서 중앙에 남는 현상 방지.
+        if(u.spawnMove && u.spawnMoveTime > 2.8 && d < 48){
+          u.x = u.tx;
+          u.y = u.ty;
+          u.settled = true;
+          u.spawnMove = false;
+        }
       }else{
+        u.x = u.tx;
+        u.y = u.ty;
         u.settled=true;
+        u.spawnMove=false;
       }
 
       // 겹침 보정은 아주 약하게만 유지. 자리를 크게 밀려나지 않게 한다.
@@ -1325,7 +1345,7 @@
           if(ref){
             const a=targetAnchorForUnit(u,ref,power);
             u.ax=a.x; u.ay=a.y; u.tx=a.x; u.ty=a.y;
-            u.manual=false; u.settled=false; u.noHitTime=0;
+            u.manual=false; u.settled=false; u.spawnMove=true; u.spawnMoveTime=0; u.noHitTime=0;
             if(audio.unlocked) sfx('menu');
           }
         }
@@ -2176,7 +2196,7 @@
   });
   cv.addEventListener('pointermove',e=>{
     if(!state.dragging) return; const p=pointerPos(e); const ib=innerBox(); const u=state.units.find(x=>x.id===state.dragging); if(!u) return;
-    u.x=clamp(p.x,ib.x+12,ib.x+ib.w-12); u.y=clamp(p.y,ib.y+12,ib.y+ib.h-12); u.tx=u.x; u.ty=u.y; setUnitHomeFromPosition(u); u.ax=u.x; u.ay=u.y; u.manual=true; u.settled=true; u.holdTimer=999; u.moveThink=999;
+    u.x=clamp(p.x,ib.x+12,ib.x+ib.w-12); u.y=clamp(p.y,ib.y+12,ib.y+ib.h-12); u.tx=u.x; u.ty=u.y; setUnitHomeFromPosition(u); u.ax=u.x; u.ay=u.y; u.manual=true; u.settled=true; u.spawnMove=false; u.holdTimer=999; u.moveThink=999;
   });
   cv.addEventListener('pointerup',()=>state.dragging=null); cv.addEventListener('pointercancel',()=>state.dragging=null); document.addEventListener('pointerup',()=>state.dragging=null); document.addEventListener('pointercancel',()=>state.dragging=null);
 

@@ -172,6 +172,25 @@
   .statsBtn{height:48px;border:0;border-radius:17px;background:linear-gradient(180deg,#ffe977,#ffb42d);border-bottom:7px solid #8f5714;color:#231500;font-weight:1000;font-size:15px;box-shadow:0 10px 20px rgba(0,0,0,.28)}
   .statsBtn.dark{background:linear-gradient(180deg,#5a6475,#2a313e);border-bottom-color:#0b0d12;color:white}
   .statsBtn:active{transform:translateY(2px);border-bottom-width:4px}
+  #rankRegister,#hallOfFame{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:44;padding:16px;background:rgba(5,8,10,.74);backdrop-filter:blur(5px)}
+  .rankPanel{width:min(94%,500px);max-height:92%;overflow:auto;border-radius:28px;background:linear-gradient(180deg,#202835,#0f141c);border:3px solid rgba(255,255,255,.12);border-bottom:9px solid #05070a;box-shadow:0 22px 60px rgba(0,0,0,.62);padding:16px;color:#f6f4e8}
+  .rankTitle{text-align:center;font-size:28px;font-weight:1000;color:#ffe36e;text-shadow:0 4px #392400;letter-spacing:-1px}
+  .rankSub{text-align:center;font-size:13px;font-weight:900;color:#d8e1ee;margin:5px 0 13px;line-height:1.35}
+  .rankInput{width:100%;height:52px;border:2px solid rgba(255,255,255,.16);border-radius:16px;background:rgba(0,0,0,.24);color:#fff;font-size:18px;font-weight:1000;text-align:center;outline:none;margin:8px 0 10px}
+  .rankInput::placeholder{color:rgba(255,255,255,.45)}
+  .rankScoreBox{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+  .rankScoreBox .statBox{padding:10px 8px}
+  .rankList{display:grid;gap:7px;margin-top:10px}
+  .rankRow{display:grid;grid-template-columns:38px 1fr 62px 72px;gap:7px;align-items:center;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.10);padding:8px 9px;font-weight:900}
+  .rankRow.me{background:rgba(255,226,83,.16);border-color:rgba(255,226,83,.36)}
+  .rankNo{font-size:13px;color:#ffe36e;text-align:center}
+  .rankName{font-size:14px;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rankStage,.rankScore{text-align:right;font-size:12px;color:#dce6f0}
+  .rankMsg{text-align:center;padding:18px 8px;font-size:14px;font-weight:900;color:#dbe7f6}
+  .rankBtnRow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+  .rankBtn{height:48px;border:0;border-radius:17px;background:linear-gradient(180deg,#ffe977,#ffb42d);border-bottom:7px solid #8f5714;color:#231500;font-weight:1000;font-size:15px;box-shadow:0 10px 20px rgba(0,0,0,.28)}
+  .rankBtn.dark{background:linear-gradient(180deg,#5a6475,#2a313e);border-bottom-color:#0b0d12;color:white}
+  .rankBtn:active{transform:translateY(2px);border-bottom-width:4px}
   #titleScreen.ready .touchHint{opacity:1}
   #titleScreen.audioReady .touchHint::after{content:' · 사운드 ON';font-size:.78em;opacity:.9}
   .titleStartWrap{display:flex;flex-direction:column;align-items:center;gap:12px}
@@ -222,7 +241,7 @@
 <div id="app">
   <canvas id="cv"></canvas>
   <div id="ui">
-    <div class="versionBadge" id="gameVersion">v0.35</div>
+    <div class="versionBadge" id="gameVersion">v0.39</div>
     <div class="safeTop">
       <div class="topRow">
         <div class="panel badge"><div class="label">WAVE</div><div class="value" id="wave">1</div><div class="sub" id="stageType">일반</div></div>
@@ -306,7 +325,7 @@
   <div id="titleScreen">
     <div class="titleHero">
       <div class="titleOverlay"></div>
-      <div class="versionBadge" id="titleVersion">v0.35</div>
+      <div class="versionBadge" id="titleVersion">v0.39</div>
       <div class="titleSpark s1"></div>
       <div class="titleSpark s2"></div>
       <div class="titleSpark s3"></div>
@@ -337,16 +356,106 @@
       </div>
       <div id="clearStatsBody"></div>
       <div class="statsBtnRow">
-        <button class="statsBtn dark" id="statsCloseBtn">닫기</button>
+        <button class="statsBtn dark" id="statsCloseBtn">랭킹 등록</button>
         <button class="statsBtn" id="statsRetryBtn">다시하기</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="rankRegister">
+    <div class="rankPanel">
+      <div class="rankTitle">랭킹 등록!</div>
+      <div class="rankSub">이름을 입력하면 명예의 전당에 등록됩니다.</div>
+      <div class="rankScoreBox">
+        <div class="statBox"><b id="rankStagePreview">100</b><span>도달 스테이지</span></div>
+        <div class="statBox"><b id="rankScorePreview">0</b><span>유닛 스코어</span></div>
+      </div>
+      <input class="rankInput" id="rankNameInput" maxlength="12" placeholder="이름 입력">
+      <div class="rankBtnRow">
+        <button class="rankBtn dark" id="rankSkipBtn">건너뛰기</button>
+        <button class="rankBtn" id="rankSubmitBtn">등록</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="hallOfFame">
+    <div class="rankPanel">
+      <div class="rankTitle">명예의 전당</div>
+      <div class="rankSub">클리어 스테이지 우선, 같은 스테이지에서는 유닛 스코어 순</div>
+      <div class="rankList" id="rankListBody">
+        <div class="rankMsg">랭킹 불러오는 중...</div>
+      </div>
+      <div class="rankBtnRow">
+        <button class="rankBtn dark" id="hallCloseBtn">닫기</button>
+        <button class="rankBtn" id="hallRetryBtn">다시하기</button>
       </div>
     </div>
   </div>
 </div>
 
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-analytics.js";
+  import {
+    getFirestore, collection, addDoc, getDocs, query, orderBy, limit, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyD_V91TiPi9HOGkV24pUH-HfcoO8DAx_oI",
+    authDomain: "game-1-4ac42.firebaseapp.com",
+    projectId: "game-1-4ac42",
+    storageBucket: "game-1-4ac42.firebasestorage.app",
+    messagingSenderId: "8254458604",
+    appId: "1:8254458604:web:73ddbb71c714ef15af73c9",
+    measurementId: "G-GV3KG02WP0"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  try { getAnalytics(app); } catch(e) {}
+  const db = getFirestore(app);
+
+  window.rankApi = {
+    async addRank(data){
+      return addDoc(collection(db, "ver"), {
+        ...data,
+        createdAt: serverTimestamp()
+      });
+    },
+    async getRanks(){
+      const col = collection(db, "ver");
+
+      // 1차: Firebase 색인 쿼리 사용
+      // 2차: 색인/정렬 문제 발생 시 전체 조회 후 JS에서 정렬
+      try{
+        const q = query(
+          col,
+          orderBy("stage", "desc"),
+          orderBy("score", "desc"),
+          orderBy("__name__", "asc"),
+          limit(50)
+        );
+        const snap = await getDocs(q);
+        return snap.docs.map(d=>({id:d.id, ...d.data()}));
+      }catch(e){
+        console.warn("Indexed ranking query failed. Falling back to client-side sort.", e);
+        const snap = await getDocs(col);
+        return snap.docs
+          .map(d=>({id:d.id, ...d.data()}))
+          .sort((a,b)=>
+            (Number(b.stage||0)-Number(a.stage||0)) ||
+            (Number(b.score||0)-Number(a.score||0)) ||
+            String(a.version||'').localeCompare(String(b.version||'')) ||
+            String(a.id||'').localeCompare(String(b.id||''))
+          )
+          .slice(0,50);
+      }
+    }
+  };
+</script>
+
 <script>
 (()=>{
-  const GAME_VERSION = 'v0.35';
+  const GAME_VERSION = 'v0.39';
 
   // GitHub Pages / 카톡 인앱브라우저 캐시 꼬임 완화.
   // 저장 데이터(localStorage)는 유지하고, 서비스워커/뒤로가기 캐시만 정리한다.
@@ -955,9 +1064,9 @@
     if(r < mRate) return '신화';
     if(r < mRate + eRate) return '에픽';
     if(r < mRate + eRate + 0.0000455) return '전설';
-    if(r < mRate + eRate + 0.001092) return '영웅';
-    if(r < mRate + eRate + 0.01729) return '희귀';
-    if(r < mRate + eRate + 0.08329) return '고급';
+    if(r < mRate + eRate + 0.00077805) return '영웅';
+    if(r < mRate + eRate + 0.01211665) return '희귀';
+    if(r < mRate + eRate + 0.06491665) return '고급';
     return '일반';
   }
 
@@ -1541,6 +1650,78 @@
     const labels=['일반','고급','희귀','영웅','전설','에픽','신화'];
     return `<div class="rankStats">${labels.map(r=>`<div class="rankChip"><strong style="color:${rankColors[r]||'#fff'}">${r==='신화'?'앰망진창':r}</strong><span>${fmtNum(obj[r]||0)}</span></div>`).join('')}</div>`;
   }
+  const RANK_SCORE_WEIGHT = {일반:1,고급:3,희귀:9,영웅:27,전설:81,에픽:60,신화:100};
+  function calcUnitScore(){
+    const d=state.stats.drawn || {};
+    return Object.entries(RANK_SCORE_WEIGHT).reduce((sum,[rank,w])=>sum + ((d[rank]||0)*w),0);
+  }
+  function sanitizeRankName(name){
+    return String(name||'').replace(/[<>]/g,'').trim().slice(0,12) || '이름없음';
+  }
+  function currentRankPayload(){
+    return {
+      name:sanitizeRankName($('rankNameInput')?.value),
+      stage:state.stage,
+      score:calcUnitScore(),
+      kills:state.kills,
+      draws:state.stats.drawCount,
+      version:GAME_VERSION
+    };
+  }
+  function showRankRegister(){
+    $('clearStats').style.display='none';
+    $('gameOver').style.display='none';
+    $('hallOfFame').style.display='none';
+    $('rankStagePreview').textContent=fmtNum(state.stage);
+    $('rankScorePreview').textContent=fmtNum(calcUnitScore());
+    $('rankNameInput').value='';
+    $('rankRegister').style.display='flex';
+    setTimeout(()=>$('rankNameInput').focus?.(),80);
+  }
+  async function submitRank(){
+    const payload=currentRankPayload();
+    $('rankSubmitBtn').disabled=true;
+    $('rankSubmitBtn').textContent='등록 중...';
+    try{
+      if(!window.rankApi) throw new Error('Firebase not ready');
+      const docRef=await window.rankApi.addRank(payload);
+      state.lastRankId=docRef.id;
+      $('rankRegister').style.display='none';
+      await showHallOfFame();
+    }catch(e){
+      console.error(e);
+      toast('랭킹 등록 실패');
+      $('rankRegister').style.display='none';
+      await showHallOfFame();
+    }finally{
+      $('rankSubmitBtn').disabled=false;
+      $('rankSubmitBtn').textContent='등록';
+    }
+  }
+  async function showHallOfFame(){
+    $('hallOfFame').style.display='flex';
+    $('rankListBody').innerHTML='<div class="rankMsg">랭킹 불러오는 중...</div>';
+    try{
+      if(!window.rankApi) throw new Error('Firebase not ready');
+      const rows=await window.rankApi.getRanks();
+      if(!rows.length){
+        $('rankListBody').innerHTML='<div class="rankMsg">아직 등록된 랭킹이 없습니다.</div>';
+        return;
+      }
+      $('rankListBody').innerHTML=rows.map((r,i)=>`
+        <div class="rankRow ${r.id===state.lastRankId?'me':''}">
+          <div class="rankNo">${i+1}</div>
+          <div class="rankName">${sanitizeRankName(r.name)}</div>
+          <div class="rankStage">${fmtNum(r.stage||0)}층</div>
+          <div class="rankScore">${fmtNum(r.score||0)}점</div>
+        </div>
+      `).join('');
+    }catch(e){
+      console.error(e);
+      $('rankListBody').innerHTML='<div class="rankMsg">랭킹을 불러오지 못했습니다.<br>Firestore 읽기 권한 또는 컬렉션명을 확인해주세요.</div>';
+    }
+  }
+
   function showClearStats(){
     const s=state.stats;
     const current=unitsByRankFromCurrent();
@@ -1609,9 +1790,9 @@
       showClearStats();
       return;
     }
-    $('gameOverTitle').textContent = '게임오버';
-    $('gameOverText').textContent = `${text} 최종 WAVE ${state.stage}`;
-    $('gameOver').style.display='flex';
+
+    // 어느 스테이지에서 죽어도 랭킹 등록 가능.
+    showRankRegister();
   }
 
   function toast(msg){
@@ -2297,7 +2478,11 @@
   });
   bindTap('restartGameBtn', ()=>location.reload());
   bindTap('statsRetryBtn', ()=>location.reload());
-  bindTap('statsCloseBtn', ()=>$('clearStats').style.display='none');
+  bindTap('statsCloseBtn', showRankRegister);
+  bindTap('rankSubmitBtn', submitRank);
+  bindTap('rankSkipBtn', async ()=>{ $('rankRegister').style.display='none'; await showHallOfFame(); });
+  bindTap('hallRetryBtn', ()=>location.reload());
+  bindTap('hallCloseBtn', ()=>$('hallOfFame').style.display='none');
   function setSpeed(v){
     state.speed=v;
     sfx('speed');

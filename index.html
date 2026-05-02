@@ -172,7 +172,7 @@
   .statsBtn{height:48px;border:0;border-radius:17px;background:linear-gradient(180deg,#ffe977,#ffb42d);border-bottom:7px solid #8f5714;color:#231500;font-weight:1000;font-size:15px;box-shadow:0 10px 20px rgba(0,0,0,.28)}
   .statsBtn.dark{background:linear-gradient(180deg,#5a6475,#2a313e);border-bottom-color:#0b0d12;color:white}
   .statsBtn:active{transform:translateY(2px);border-bottom-width:4px}
-  #rankRegister,#hallOfFame{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:44;padding:16px;background:rgba(5,8,10,.74);backdrop-filter:blur(5px)}
+  #rankRegister,#hallOfFame{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:120;padding:16px;background:rgba(5,8,10,.74);backdrop-filter:blur(5px)}
   .rankPanel{width:min(94%,500px);max-height:92%;overflow:auto;border-radius:28px;background:linear-gradient(180deg,#202835,#0f141c);border:3px solid rgba(255,255,255,.12);border-bottom:9px solid #05070a;box-shadow:0 22px 60px rgba(0,0,0,.62);padding:16px;color:#f6f4e8}
   .rankTitle{text-align:center;font-size:28px;font-weight:1000;color:#ffe36e;text-shadow:0 4px #392400;letter-spacing:-1px}
   .rankSub{text-align:center;font-size:13px;font-weight:900;color:#d8e1ee;margin:5px 0 13px;line-height:1.35}
@@ -195,6 +195,10 @@
   #titleScreen.ready .touchHint{opacity:1}
   #titleScreen.audioReady .touchHint::after{content:' · 사운드 ON';font-size:.78em;opacity:.9}
   .titleStartWrap{display:flex;flex-direction:column;align-items:center;gap:12px}
+  .titleButtonRow{display:flex;align-items:center;justify-content:center;gap:10px;width:100%}
+  .titleButtonRow .startBtn{width:min(54vw,260px)}
+  .titleRankBtn{width:min(27vw,130px);height:54px;border:0;border-radius:18px;background:linear-gradient(180deg,#5a6475,#2a313e);border:2px solid rgba(255,255,255,.14);border-bottom:7px solid #0b0d12;color:white;font-size:14px;font-weight:1000;box-shadow:0 10px 20px rgba(0,0,0,.34);white-space:nowrap}
+  .titleRankBtn:active{transform:translateY(2px);border-bottom-width:4px}
   .titleCompany{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);transform:translateX(-50%);font-size:13px;font-weight:1000;color:rgba(255,245,190,.92);text-shadow:0 2px 0 rgba(0,0,0,.55),0 0 10px rgba(255,220,90,.25);letter-spacing:-.2px;z-index:3}
   .versionBadge{position:absolute;right:7px;top:calc(env(safe-area-inset-top,0px) + 5px);z-index:55;font-size:9px;font-weight:900;color:rgba(255,255,255,.62);text-shadow:0 1px 2px rgba(0,0,0,.75);pointer-events:none}
   #gameVersion{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 5px);right:7px;color:rgba(255,255,255,.48)}
@@ -242,7 +246,7 @@
 <div id="app">
   <canvas id="cv"></canvas>
   <div id="ui">
-    <div class="versionBadge" id="gameVersion">v0.40</div>
+    <div class="versionBadge" id="gameVersion">v0.43</div>
     <div class="safeTop">
       <div class="topRow">
         <div class="panel badge"><div class="label">WAVE</div><div class="value" id="wave">1</div><div class="sub" id="stageType">일반</div></div>
@@ -326,7 +330,7 @@
   <div id="titleScreen">
     <div class="titleHero">
       <div class="titleOverlay"></div>
-      <div class="versionBadge" id="titleVersion">v0.40</div>
+      <div class="versionBadge" id="titleVersion">v0.43</div>
       <div class="titleSpark s1"></div>
       <div class="titleSpark s2"></div>
       <div class="titleSpark s3"></div>
@@ -335,7 +339,10 @@
       <div class="titleSpark s6"></div>
       <div class="titleStartWrap">
         <div class="touchHint" id="touchHint">터치하여 시작</div>
-        <button class="startBtn" id="startBtn">게임 시작</button>
+        <div class="titleButtonRow">
+          <button class="startBtn" id="startBtn">게임 시작</button>
+          <button class="titleRankBtn" id="titleRankBtn">랭킹보기</button>
+        </div>
       </div>
       <div class="titleCompany">내떡진 게임즈</div>
     </div>
@@ -455,7 +462,7 @@
 
 <script>
 (()=>{
-  const GAME_VERSION = 'v0.40';
+  const GAME_VERSION = 'v0.43';
 
   // GitHub Pages / 카톡 인앱브라우저 캐시 꼬임 완화.
   // 저장 데이터(localStorage)는 유지하고, 서비스워커/뒤로가기 캐시만 정리한다.
@@ -511,6 +518,7 @@
     lowMode:false,
     mythicCount:0,
     choosingAugment:false,
+    hallFromTitle:false,
     augmentChoices:[],
     stats:{
       startGold:30,
@@ -1698,7 +1706,12 @@
       $('rankSubmitBtn').textContent='등록';
     }
   }
-  async function showHallOfFame(){
+  async function showHallOfFame(fromTitle=false){
+    state.hallFromTitle = !!fromTitle;
+    $('rankRegister').style.display='none';
+    $('clearStats').style.display='none';
+    $('gameOver').style.display='none';
+    $('hallRetryBtn').textContent = state.hallFromTitle ? '창닫기' : '다시하기';
     $('hallOfFame').style.display='flex';
     $('rankListBody').innerHTML='<div class="rankMsg">랭킹 불러오는 중...</div>';
     try{
@@ -2490,7 +2503,15 @@
   bindTap('statsCloseBtn', showRankRegister);
   bindTap('rankSubmitBtn', submitRank);
   bindTap('rankSkipBtn', async ()=>{ $('rankRegister').style.display='none'; await showHallOfFame(); });
-  bindTap('hallRetryBtn', hardRestart);
+  bindTap('titleRankBtn', async ()=>{ initAudio(); sfx('menu'); await showHallOfFame(true); });
+  $('titleRankBtn').onclick = async e=>{
+    e.preventDefault();
+    e.stopPropagation();
+    initAudio();
+    sfx('menu');
+    await showHallOfFame(true);
+  };
+  bindTap('hallRetryBtn', ()=>{ state.hallFromTitle ? $('hallOfFame').style.display='none' : hardRestart(); });
   function setSpeed(v){
     state.speed=v;
     sfx('speed');
@@ -2518,13 +2539,13 @@
 
 
   $('titleScreen').addEventListener('pointerdown', (e)=>{
-    if(e.target && e.target.id==='startBtn') return;
+    if(e.target && (e.target.id==='startBtn' || e.target.id==='titleRankBtn')) return;
     initTitleAudio();
     $('titleScreen').classList.add('ready');
   });
 
   $('titleScreen').addEventListener('click', (e)=>{
-    if(e.target && e.target.id==='startBtn') return;
+    if(e.target && (e.target.id==='startBtn' || e.target.id==='titleRankBtn')) return;
     initTitleAudio();
     $('titleScreen').classList.add('ready');
   });

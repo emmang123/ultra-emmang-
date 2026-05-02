@@ -249,7 +249,7 @@
 <div id="app">
   <canvas id="cv"></canvas>
   <div id="ui">
-    <div class="versionBadge" id="gameVersion">v0.48</div>
+    <div class="versionBadge" id="gameVersion">v0.49</div>
     <div class="safeTop">
       <div class="topRow">
         <div class="panel badge"><div class="label">WAVE</div><div class="value" id="wave">1</div><div class="sub" id="stageType">일반</div></div>
@@ -333,7 +333,7 @@
   <div id="titleScreen">
     <div class="titleHero">
       <div class="titleOverlay"></div>
-      <div class="versionBadge" id="titleVersion">v0.48</div>
+      <div class="versionBadge" id="titleVersion">v0.49</div>
       <div class="titleSpark s1"></div>
       <div class="titleSpark s2"></div>
       <div class="titleSpark s3"></div>
@@ -465,7 +465,7 @@
 
 <script>
 (()=>{
-  const GAME_VERSION = 'v0.48';
+  const GAME_VERSION = 'v0.49';
 
   // GitHub Pages / 카톡 인앱브라우저 캐시 꼬임 완화.
   // 저장 데이터(localStorage)는 유지하고, 서비스워커/뒤로가기 캐시만 정리한다.
@@ -992,7 +992,7 @@
   }
   function pathPosition(t){ const p=pathPoints(); const seg=[dist(p[0],p[1]),dist(p[1],p[2]),dist(p[2],p[3]),dist(p[3],p[0])]; const total=seg[0]+seg[1]+seg[2]+seg[3]; let d=(t%1)*total; for(let i=0;i<4;i++){ if(d<=seg[i]){ const a=p[i],b=p[(i+1)%4],u=d/seg[i]; return {x:a.x+(b.x-a.x)*u,y:a.y+(b.y-a.y)*u}; } d-=seg[i]; } return p[0]; }
 
-  const STAGE_HP = [0,30,41,63,98,142,198,272,326,390,4400,558,668,800,860,924,994,1068,1149,1235,19939,1427,1534,1649,1772,1905,2048,2202,2367,2545,50672,3074,3291,3521,3769,4034,4317,4620,4944,5290,99626,6059,6483,6938,7423,7942,8499,9093,9728,10409,176356,12382,13256,14190,15190,16260,17404,18630,19940,21342,301191,24219,25676,27221,28859,30593,32432,34380,36446,38633,442355,43407,46009,48766,51687,58570,62324,66315,70554,75060,675573,84936,90342,96086,102189,108672,115557,122874,130645,138898,945520,156976,166863,177366,188517,200359,212932,226284,240458,255509,1200000];
+  const STAGE_HP = [0,30,41,63,98,142,198,272,326,390,3080,558,668,800,860,924,994,1068,1149,1235,13957,1427,1534,1649,1772,1905,2048,2202,2367,2545,35470,3074,3291,3521,3769,4034,4317,4620,4944,5290,69738,6059,6483,6938,7423,7942,8499,9093,9728,10409,149903,12382,13256,14190,15190,16260,17404,18630,19940,21342,256012,24219,25676,27221,28859,30593,32432,34380,36446,38633,376002,43407,46009,48766,51687,58570,62324,66315,70554,75060,574237,84936,90342,96086,102189,108672,115557,122874,130645,138898,803692,156976,166863,177366,188517,200359,212932,226284,240458,255509,1200000];
 
   function monsterStat(stage,boss=false){
     const type = boss ? 'L' : (stage % 3 === 1 ? 'S' : stage % 3 === 2 ? 'M' : 'L');

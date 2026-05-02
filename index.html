@@ -215,7 +215,7 @@
 <div id="app">
   <canvas id="cv"></canvas>
   <div id="ui">
-    <div class="versionBadge" id="gameVersion">v0.26</div>
+    <div class="versionBadge" id="gameVersion">v0.27</div>
     <div class="safeTop">
       <div class="topRow">
         <div class="panel badge"><div class="label">WAVE</div><div class="value" id="wave">1</div><div class="sub" id="stageType">일반</div></div>
@@ -299,7 +299,7 @@
   <div id="titleScreen">
     <div class="titleHero">
       <div class="titleOverlay"></div>
-      <div class="versionBadge" id="titleVersion">v0.26</div>
+      <div class="versionBadge" id="titleVersion">v0.27</div>
       <div class="titleSpark s1"></div>
       <div class="titleSpark s2"></div>
       <div class="titleSpark s3"></div>
@@ -985,7 +985,6 @@
       ax:a.x, ay:a.y, homeSide:a.side, homePos:a.pos, manual:false, settled:false,
       slotOffset:rand(-18,18), lastMoveTarget:null, moveThink:999,
       idleOutRange:0, noHitTime:0, holdTimer:999,
-      spawnMove:true, spawnMoveTime:0,
       cool:rand(0,.35), step:Math.random()*6.28, face:1, pulse:0,
     });
   }
@@ -1297,28 +1296,14 @@
 
       const dx=u.tx-u.x, dy=u.ty-u.y, d=Math.hypot(dx,dy);
       if(d>1){
-        if(u.spawnMove) u.spawnMoveTime = (u.spawnMoveTime || 0) + dt;
-
-        // 생산 직후에는 빈 벽으로 확실히 이동해야 하므로 이동 속도를 크게 올린다.
-        // 도착 후에는 기존처럼 고정 포탑처럼 동작.
-        const moveMul = u.spawnMove ? 4.2 : 0.70;
-        const step=Math.min(d,power.move*dt*moveMul);
+        const step=Math.min(d,power.move*dt*.70);
         u.x += dx/d*step;
         u.y += dy/d*step;
-        u.step += dt*(u.spawnMove ? 6.0 : 3.0);
-
-        // 너무 오래 이동 중이면 강제로 목표 지점 근처까지 붙여서 중앙에 남는 현상 방지.
-        if(u.spawnMove && u.spawnMoveTime > 2.8 && d < 48){
-          u.x = u.tx;
-          u.y = u.ty;
-          u.settled = true;
-          u.spawnMove = false;
-        }
+        u.step += dt*3.0;
       }else{
         u.x = u.tx;
         u.y = u.ty;
         u.settled=true;
-        u.spawnMove=false;
       }
 
       // 겹침 보정은 아주 약하게만 유지. 자리를 크게 밀려나지 않게 한다.
@@ -1345,7 +1330,7 @@
           if(ref){
             const a=targetAnchorForUnit(u,ref,power);
             u.ax=a.x; u.ay=a.y; u.tx=a.x; u.ty=a.y;
-            u.manual=false; u.settled=false; u.spawnMove=true; u.spawnMoveTime=0; u.noHitTime=0;
+            u.manual=false; u.settled=false; u.noHitTime=0;
             if(audio.unlocked) sfx('menu');
           }
         }
@@ -2196,7 +2181,7 @@
   });
   cv.addEventListener('pointermove',e=>{
     if(!state.dragging) return; const p=pointerPos(e); const ib=innerBox(); const u=state.units.find(x=>x.id===state.dragging); if(!u) return;
-    u.x=clamp(p.x,ib.x+12,ib.x+ib.w-12); u.y=clamp(p.y,ib.y+12,ib.y+ib.h-12); u.tx=u.x; u.ty=u.y; setUnitHomeFromPosition(u); u.ax=u.x; u.ay=u.y; u.manual=true; u.settled=true; u.spawnMove=false; u.holdTimer=999; u.moveThink=999;
+    u.x=clamp(p.x,ib.x+12,ib.x+ib.w-12); u.y=clamp(p.y,ib.y+12,ib.y+ib.h-12); u.tx=u.x; u.ty=u.y; setUnitHomeFromPosition(u); u.ax=u.x; u.ay=u.y; u.manual=true; u.settled=true; u.holdTimer=999; u.moveThink=999;
   });
   cv.addEventListener('pointerup',()=>state.dragging=null); cv.addEventListener('pointercancel',()=>state.dragging=null); document.addEventListener('pointerup',()=>state.dragging=null); document.addEventListener('pointercancel',()=>state.dragging=null);
 

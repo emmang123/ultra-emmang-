@@ -218,7 +218,7 @@
 <div id="app">
   <canvas id="cv"></canvas>
   <div id="ui">
-    <div class="versionBadge" id="gameVersion">v0.29</div>
+    <div class="versionBadge" id="gameVersion">v0.30</div>
     <div class="safeTop">
       <div class="topRow">
         <div class="panel badge"><div class="label">WAVE</div><div class="value" id="wave">1</div><div class="sub" id="stageType">일반</div></div>
@@ -302,7 +302,7 @@
   <div id="titleScreen">
     <div class="titleHero">
       <div class="titleOverlay"></div>
-      <div class="versionBadge" id="titleVersion">v0.29</div>
+      <div class="versionBadge" id="titleVersion">v0.30</div>
       <div class="titleSpark s1"></div>
       <div class="titleSpark s2"></div>
       <div class="titleSpark s3"></div>
@@ -342,7 +342,7 @@
 
 <script>
 (()=>{
-  const GAME_VERSION = 'v0.29';
+  const GAME_VERSION = 'v0.30';
 
   // GitHub Pages / 카톡 인앱브라우저 캐시 꼬임 완화.
   // 저장 데이터(localStorage)는 유지하고, 서비스워커/뒤로가기 캐시만 정리한다.
@@ -389,6 +389,7 @@
     gold:30, kills:0, killBank:0,
     mobs:[], units:[], shots:[], fx:[],
     spawned:0, nextSpawn:0,
+    targetCache:{timer:0,front:[],all:[]},
     up:{매실:0,코인조망:0,참직:0},
     dragging:null,
     last:0,
@@ -1011,6 +1012,7 @@
       ax:a.x, ay:a.y, homeSide:a.side, homePos:a.pos, manual:false, settled:false,
       slotOffset:rand(-18,18), lastMoveTarget:null, moveThink:999,
       idleOutRange:0, noHitTime:0, holdTimer:999,
+      target:null, targetBest:Infinity, targetThink:rand(0,.18),
       cool:rand(0,.35), step:Math.random()*6.28, face:1, pulse:0,
     });
   }
@@ -1279,43 +1281,67 @@
     return false;
   }
 
-  function chooseTargetForUnit(u){
-    let best=null, bestScore=Infinity;
-    let mobs=state.mobs;
+  function rebuildTargetCache(force=false){
+    const cache=state.targetCache;
+    cache.timer -= force ? 999 : 0;
+    if(!force && cache.timer>0) return;
 
-    // 몬스터가 많이 쌓이면 전체가 아니라 진행도가 높은 후보 위주로 검사.
-    // 계산량을 줄이면서도 실제 방어 체감은 앞쪽 몬스터 우선이라 자연스럽다.
-    if(mobs.length > 36){
-      mobs = [...mobs].sort((a,b)=>b.t-a.t).slice(0, state.lowMode ? 30 : 44);
+    // 몬스터 정렬은 유닛마다 하지 않고, 일정 주기마다 한 번만 한다.
+    const sorted = [...state.mobs].sort((a,b)=>b.t-a.t);
+    cache.all = sorted;
+    cache.front = sorted.slice(0, state.lowMode ? 26 : (state.speed>=4 ? 30 : 40));
+    cache.timer = state.lowMode ? .32 : (state.speed>=4 ? .28 : .22);
+  }
+
+  function chooseTargetForUnit(u, force=false){
+    u.targetThink = (u.targetThink || 0);
+    const cachedTarget = u.target && state.mobs.includes(u.target);
+
+    // 유닛별 타겟 재탐색도 매 프레임 하지 않는다.
+    // 기존 타겟이 살아있으면 거리만 다시 계산해서 사용.
+    if(!force && cachedTarget && u.targetThink>0){
+      return {target:u.target,best:Math.hypot(u.target.x-u.x,u.target.y-u.y)};
     }
+
+    rebuildTargetCache(false);
+
+    let best=null, bestScore=Infinity;
+    const mobs = state.mobs.length > 36 ? state.targetCache.front : state.mobs;
 
     if(u.race==='야코'){
-      const unlocked = mobs.filter(m=>(m.lockdown||0)<=0);
-      const pool = unlocked.length ? unlocked : mobs;
-      for(const m of pool){
+      let fallback=null, fallbackScore=Infinity;
+      for(const m of mobs){
         const d=Math.hypot(m.x-u.x,m.y-u.y);
+        if(d<fallbackScore){ fallbackScore=d; fallback=m; }
+        if((m.lockdown||0)>0) continue;
         if(d<bestScore){ bestScore=d; best=m; }
       }
-      return {target:best,best:bestScore};
-    }
-    if(u.race==='신화'){
+      if(!best){ best=fallback; bestScore=fallbackScore; }
+    }else if(u.race==='신화'){
       for(const m of mobs){
         const score = -m.t*1000 + ((m.lockdown||0)>0 ? 120 : 0);
         if(score<bestScore){ bestScore=score; best=m; }
       }
-      return {target:best,best:best?Math.hypot(best.x-u.x,best.y-u.y):Infinity};
+      bestScore = best ? Math.hypot(best.x-u.x,best.y-u.y) : Infinity;
+    }else{
+      for(const m of mobs){
+        const d=Math.hypot(m.x-u.x,m.y-u.y);
+        if(d<bestScore){ bestScore=d; best=m; }
+      }
     }
-    for(const m of mobs){
-      const d=Math.hypot(m.x-u.x,m.y-u.y);
-      if(d<bestScore){ bestScore=d; best=m; }
-    }
+
+    u.target=best;
+    u.targetBest=bestScore;
+    u.targetThink = state.lowMode ? (.30+Math.random()*.10) : (state.speed>=4 ? (.26+Math.random()*.08) : (.20+Math.random()*.08));
     return {target:best,best:bestScore};
   }
 
   function updateUnits(dt){
     const ib=innerBox();
+    rebuildTargetCache(false);
     for(const u of state.units){
       if(state.dragging===u.id) continue;
+      u.targetThink = Math.max(0,(u.targetThink||0)-dt);
       const power=unitPower(u);
 
       // 유닛은 생성 직후 정해진 벽/라인 위치로만 이동한다.
@@ -1349,8 +1375,12 @@
         }
       }
 
-      const attackCheck=chooseTargetForUnit(u);
-      const target=attackCheck.target, best=attackCheck.best;
+      let attackCheck=chooseTargetForUnit(u);
+      let target=attackCheck.target, best=attackCheck.best;
+      if((!target || best>power.range) && u.cool<=0) {
+        attackCheck=chooseTargetForUnit(u,true);
+        target=attackCheck.target; best=attackCheck.best;
+      }
       if(target) u.face = target.x > u.x ? 1 : -1;
 
       // 플레이어가 너무 안쪽/엉뚱한 곳에 둬서 한 바퀴 가까이 아무것도 못 때리면 예외적으로 재배치.
@@ -1469,7 +1499,7 @@
       }
     }
 
-    updateMobs(dt); updateUnits(dt); updateShots(dt); updateFx(dt);
+    updateMobs(dt); rebuildTargetCache(false); updateUnits(dt); updateShots(dt); updateFx(dt);
 
     const dead = state.mobs.filter(m=>m.hp<=0);
     if(dead.length){
@@ -1497,6 +1527,7 @@
       }
     }
     state.mobs = state.mobs.filter(m=>m.hp>0);
+    rebuildTargetCache(true);
 
     if(state.mobs.length >= 80){ endGame(false,'몬스터가 80마리 이상 쌓였다.'); }
     if(state.time <= 0){

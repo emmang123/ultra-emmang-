@@ -29,16 +29,17 @@
   .badge .value{font-size:22px;font-weight:1000;line-height:1.05;text-shadow:0 3px 0 #000}
   .badge .sub{font-size:10px;font-weight:800;color:#d6e2cc}
 
-  .subRow{display:grid;grid-template-columns:1fr .50fr .31fr .31fr .31fr .45fr .62fr;gap:5px;align-items:stretch}
+  .subRow{display:grid;grid-template-columns:1fr .50fr .31fr .31fr .31fr .45fr .52fr .30fr;gap:5px;align-items:stretch}
   .killWrap{display:grid;grid-template-columns:1fr;gap:8px}
   .pill{display:flex;align-items:center;justify-content:center;min-height:36px;padding:0 10px;border-radius:999px;background:linear-gradient(180deg,#2b2f3a,#171a22);border:2px solid rgba(255,255,255,.08);border-bottom:5px solid #0a0d12;box-shadow:var(--shadow);font-weight:1000;font-size:14px}
   .retryBtn,.speedBtn{pointer-events:auto;min-height:36px;border:0;border-radius:999px;background:linear-gradient(180deg,#525a68,#262d39);border:2px solid rgba(255,255,255,.12);border-bottom:5px solid #0a0d12;color:white;font-weight:1000;font-size:13px;letter-spacing:.6px;box-shadow:var(--shadow)}
   .retryBtn:active,.speedBtn:active{transform:translateY(2px);border-bottom-width:3px}
   .speedBtn.active{background:linear-gradient(180deg,#ffe977,#ffb42d);border-bottom-color:#8f5714;color:#1f1400;text-shadow:0 1px rgba(255,255,255,.45)}
-  .augBtn{pointer-events:auto;min-height:36px;border:0;border-radius:999px;background:linear-gradient(180deg,#5f7bff,#3442b8);border:2px solid rgba(255,255,255,.12);border-bottom:5px solid #10165d;color:white;font-weight:1000;font-size:12px;letter-spacing:-.2px;box-shadow:var(--shadow);white-space:nowrap;line-height:1}
-  .lowBtn{pointer-events:auto;min-height:36px;border:0;border-radius:999px;background:linear-gradient(180deg,#32d67c,#148245);border:2px solid rgba(255,255,255,.12);border-bottom:5px solid #075126;color:white;font-weight:1000;font-size:11px;letter-spacing:-.4px;box-shadow:var(--shadow);white-space:nowrap;line-height:1}
+  .augBtn,.questBtn{pointer-events:auto;min-height:36px;border:0;border-radius:999px;background:linear-gradient(180deg,#5f7bff,#3442b8);border:2px solid rgba(255,255,255,.12);border-bottom:5px solid #10165d;color:white;font-weight:1000;font-size:12px;letter-spacing:-.2px;box-shadow:var(--shadow);white-space:nowrap;line-height:1}
+  .questBtn{background:linear-gradient(180deg,#ffcf62,#d9781f);border-bottom-color:#7d390e;color:#231100;font-size:11px;text-shadow:0 1px rgba(255,255,255,.35)}
+  .lowBtn{pointer-events:auto;min-height:36px;border:0;border-radius:999px;background:linear-gradient(180deg,#32d67c,#148245);border:2px solid rgba(255,255,255,.12);border-bottom:5px solid #075126;color:white;font-weight:1000;font-size:14px;letter-spacing:-.4px;box-shadow:var(--shadow);white-space:nowrap;line-height:1}
   .lowBtn.high{background:linear-gradient(180deg,#ff9a47,#b95318);border-bottom-color:#6e2a0c}
-  .augBtn:active,.lowBtn:active{transform:translateY(2px);border-bottom-width:3px}
+  .augBtn:active,.questBtn:active,.lowBtn:active{transform:translateY(2px);border-bottom-width:3px}
   .augOverlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:30;padding:18px;pointer-events:auto;background:rgba(0,0,0,.58)}
   .augOverlay.show{display:flex}
   .augBox{width:100%;max-height:86%;overflow:auto;border-radius:24px;background:linear-gradient(180deg,#2b2f3a,#141820);border:3px solid rgba(255,255,255,.12);border-bottom:8px solid #07090d;box-shadow:0 22px 60px rgba(0,0,0,.55);padding:16px}
@@ -63,6 +64,26 @@
   .tier-common{background:#8f5714}
   .tier-advanced{background:#1e913f}
   .tier-rare{background:#1760a8}
+  .questList{display:grid;gap:7px;max-height:58vh;overflow:auto;padding-right:2px}
+  .questLine{display:grid;grid-template-columns:1fr 34px;gap:8px;align-items:center;border-radius:14px;background:rgba(255,255,255,.075);border:1px solid rgba(255,255,255,.10);padding:9px 9px;color:#edf3ff}
+  .questLine.done{background:rgba(255,219,88,.14);border-color:rgba(255,219,88,.38)}
+  .questName{font-size:13px;font-weight:1000;color:#fff}
+  .questReward{margin-top:2px;font-size:11px;font-weight:850;color:#bfcbe0;line-height:1.25}
+  .questLine.done .questReward{color:#ffe978}
+  .questCheck{width:28px;height:28px;border-radius:8px;border:3px solid rgba(255,255,255,.32);background:rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:1000;color:transparent}
+  .questLine.done .questCheck{background:linear-gradient(180deg,#ffe977,#ffb42d);border-color:#fff2a8;color:#241300;text-shadow:0 1px rgba(255,255,255,.35)}
+  #questComplete{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:64;pointer-events:none;background:radial-gradient(circle,rgba(255,225,95,.16),rgba(0,0,0,0) 58%)}
+  #questComplete.show{display:flex;animation:questFlash 1.25s ease both}
+  .questCompleteCard{position:relative;width:min(88%,420px);border-radius:26px;padding:22px 18px;text-align:center;background:linear-gradient(180deg,#fff3a6,#ffb42d 58%,#c65b1d);border:4px solid #fff6bc;border-bottom:10px solid #74310b;box-shadow:0 20px 60px rgba(0,0,0,.62),0 0 40px rgba(255,213,75,.45);color:#221100;overflow:hidden}
+  .questCompleteCard::before{content:'';position:absolute;inset:-35%;background:conic-gradient(from 0deg,transparent,rgba(255,255,255,.8),transparent,rgba(255,255,255,.55),transparent);animation:questSpin 1.1s linear infinite}
+  .questCompleteInner{position:relative;z-index:2}
+  .questCompleteTitle{font-size:29px;font-weight:1000;text-shadow:0 2px rgba(255,255,255,.45);letter-spacing:-1px}
+  .questCompleteText{margin-top:7px;font-size:15px;font-weight:1000;line-height:1.35}
+  .questCompleteSpark{position:absolute;width:8px;height:8px;border-radius:999px;background:white;box-shadow:0 0 12px white;animation:questSpark .8s ease-out infinite}
+  .questCompleteSpark.s1{left:14%;top:18%;animation-delay:0s}.questCompleteSpark.s2{left:82%;top:22%;animation-delay:.12s}.questCompleteSpark.s3{left:22%;top:76%;animation-delay:.22s}.questCompleteSpark.s4{left:76%;top:72%;animation-delay:.34s}
+  @keyframes questFlash{0%{opacity:0;transform:scale(.94)}12%{opacity:1;transform:scale(1.04)}100%{opacity:1;transform:scale(1)}}
+  @keyframes questSpin{to{transform:rotate(360deg)}}
+  @keyframes questSpark{0%{transform:scale(.4);opacity:.2}50%{transform:scale(1.5);opacity:1}100%{transform:scale(.4);opacity:.25}}
 
 
   .safeBottom{position:absolute;left:10px;right:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);display:grid;gap:8px;pointer-events:auto;z-index:18}
@@ -249,7 +270,7 @@
 <div id="app">
   <canvas id="cv"></canvas>
   <div id="ui">
-    <div class="versionBadge" id="gameVersion">v0.52</div>
+    <div class="versionBadge" id="gameVersion">v0.54</div>
     <div class="safeTop">
       <div class="topRow">
         <div class="panel badge"><div class="label">WAVE</div><div class="value" id="wave">1</div><div class="sub" id="stageType">일반</div></div>
@@ -263,7 +284,8 @@
         <button class="speedBtn" id="speed2Btn">X2</button>
         <button class="speedBtn" id="speed4Btn">X4</button>
         <button class="augBtn" id="augListBtn">증강</button>
-        <button class="lowBtn high" id="lowModeBtn">고사양</button>
+        <button class="questBtn" id="questListBtn">퀘스트</button>
+        <button class="lowBtn high" id="lowModeBtn">고</button>
       </div>
     </div>
 
@@ -280,6 +302,18 @@
     </div>
 
     <div id="bossAlert"><div class="bossText" id="bossText">지수 등장!!!</div></div>
+    <div id="questComplete">
+      <div class="questCompleteCard">
+        <div class="questCompleteSpark s1"></div>
+        <div class="questCompleteSpark s2"></div>
+        <div class="questCompleteSpark s3"></div>
+        <div class="questCompleteSpark s4"></div>
+        <div class="questCompleteInner">
+          <div class="questCompleteTitle">퀘스트 달성!</div>
+          <div class="questCompleteText" id="questCompleteText">보상 적용!</div>
+        </div>
+      </div>
+    </div>
 
     <div class="safeBottom">
       <div class="panel upgradePanel">
@@ -330,10 +364,19 @@
     </div>
   </div>
 
+  <div id="questList" class="augOverlay">
+    <div class="augBox">
+      <div class="augTitle">퀘스트</div>
+      <div class="augSub">조건 달성 시 영구 보상이 적용됩니다.</div>
+      <div class="questList" id="questListBody"></div>
+      <button class="augClose" id="questCloseBtn">X 닫기</button>
+    </div>
+  </div>
+
   <div id="titleScreen">
     <div class="titleHero">
       <div class="titleOverlay"></div>
-      <div class="versionBadge" id="titleVersion">v0.52</div>
+      <div class="versionBadge" id="titleVersion">v0.54</div>
       <div class="titleSpark s1"></div>
       <div class="titleSpark s2"></div>
       <div class="titleSpark s3"></div>
@@ -363,7 +406,7 @@
     <div class="statsPanel">
       <div class="statsHead">
         <div class="statsTitle">CLEAR!</div>
-        <div class="statsSub">100스테이지 클리어 통계</div>
+        <div class="statsSub">150스테이지 클리어 통계</div>
       </div>
       <div id="clearStatsBody"></div>
       <div class="statsBtnRow">
@@ -465,7 +508,7 @@
 
 <script>
 (()=>{
-  const GAME_VERSION = 'v0.52';
+  const GAME_VERSION = 'v0.54';
 
   // GitHub Pages / 카톡 인앱브라우저 캐시 꼬임 완화.
   // 저장 데이터(localStorage)는 유지하고, 서비스워커/뒤로가기 캐시만 정리한다.
@@ -498,7 +541,7 @@
   const epicUnits = ['레전드박','앰랖','야코'];
   const rankColors = {일반:'#ffffff',고급:'#63ff7a',희귀:'#54b2ff',영웅:'#ff5151',전설:'#ffe247',신화:'#ff4dff',에픽:'#ff8cff'};
   const raceColors = {매실:'#ff5fa2',코인조망:'#41a8ff',참직:'#48c94b',신화:'#ffb300',레전드박:'#35e873',앰랖:'#b57cff',야코:'#ffe45e'};
-  const bosses = {10:'지수',20:'호무리',30:'하율',40:'KOKO',50:'앙기무',60:'소영장군',70:'하잉',80:'힝힝',90:'노미오',100:'인생'};
+  const bosses = {10:'지수',20:'호무리',30:'하율',40:'KOKO',50:'앙기무',60:'소영장군',70:'하잉',80:'힝힝',90:'노미오',100:'인생',110:'익명의 앰생1',120:'익명의 앰생2',130:'익명의 앰생3',140:'익명의 앰생4',150:'익명의 앰생5'};
   const monsterNameSets = {
     slime:['응고 슬라임','바위 껍질 슬라임','망상 독늪','혈안 진흙괴수'],
     beast:['갈퀴 워그','흉터 하운드','광기 늑대','파멸 갈기수'],
@@ -522,7 +565,11 @@
     mythicCount:0,
     choosingAugment:false,
     hallFromTitle:false,
+    lastGameClear:false,
     augmentChoices:[],
+    quest:{
+      completed:{msRare:false,msHero:false,msLegend:false,coinRare:false,coinHero:false,coinLegend:false,chamRare:false,chamHero:false,chamLegend:false}
+    },
     stats:{
       startGold:30,
       goldEarned:0,
@@ -998,7 +1045,7 @@
   }
   function pathPosition(t){ const p=pathPoints(); const seg=[dist(p[0],p[1]),dist(p[1],p[2]),dist(p[2],p[3]),dist(p[3],p[0])]; const total=seg[0]+seg[1]+seg[2]+seg[3]; let d=(t%1)*total; for(let i=0;i<4;i++){ if(d<=seg[i]){ const a=p[i],b=p[(i+1)%4],u=d/seg[i]; return {x:a.x+(b.x-a.x)*u,y:a.y+(b.y-a.y)*u}; } d-=seg[i]; } return p[0]; }
 
-  const STAGE_HP = [0,30,41,63,98,142,198,272,326,390,3080,558,668,800,860,924,994,1068,1149,1235,13957,1427,1534,1649,1772,1905,2048,2202,2367,2545,35470,3074,3291,3521,3769,4034,4317,4620,4944,5290,69738,6059,6483,6938,7423,7942,8499,9093,9728,10409,149903,12382,13256,14190,15190,16260,17404,18630,19940,21342,256012,24219,25676,27221,28859,30593,32432,34380,36446,38633,376002,43407,46009,48766,51687,58570,62324,66315,70554,75060,574237,84936,90342,96086,102189,108672,115557,122874,130645,138898,803692,156976,166863,177366,188517,200359,212932,226284,240458,255509,1200000];
+  const STAGE_HP = [0,30,41,63,98,142,198,272,326,390,3080,558,668,800,860,924,994,1068,1149,1235,13957,1427,1534,1649,1772,1905,2048,2202,2367,2545,35470,3074,3291,3521,3769,4034,4317,4620,4944,5290,69738,6059,6483,6938,7423,7942,8499,9093,9728,10409,149903,12382,13256,14190,15190,16260,17404,18630,19940,21342,256012,24219,25676,27221,28859,30593,32432,34380,36446,38633,376002,43407,46009,48766,51687,58570,62324,66315,70554,75060,574237,84936,90342,96086,102189,108672,115557,122874,130645,138898,803692,156976,166863,177366,188517,200359,212932,226284,240458,255509,1200000,295113,313705,333468,354476,376808,400547,425781,452605,481119,1600000,511429,543649,577899,614307,653008,694148,737879,784365,833780,2200000,886308,942145,1001500,1064594,1131663,1202958,1278744,1359305,1444941,3000000,1535972,1632738,1735600,1844943,1961174,2084728,2216066,2355678,2504086,4100000,2661843,2829539,3007800,3197291,3398720,3612839,3840448,4082396,4339587,5600000];
 
   function monsterStat(stage,boss=false){
     const type = boss ? 'L' : (stage % 3 === 1 ? 'S' : stage % 3 === 2 ? 'M' : 'L');
@@ -1056,13 +1103,15 @@
     state.mobs.push(m); state.spawned++;
   }
 
+  const EPIC_COMPENSATE_MUL = 1.05;
+  const MYTHIC_NERF_MUL = 0.90;
+
   function epicRate(){
     // 아직 못 뽑은 에픽 종족이 있으면 전체 에픽 확률 2%.
-    // 에픽 3종을 모두 한 번 이상 뽑은 뒤에는 전체 에픽 확률 0.1%.
+    // 해당 에픽 종족을 최초 1마리 뽑은 뒤에는 그 종족 확률이 0.1% 수준으로 낮아진다.
     return epicUnits.some(e=>!state.epicSeen[e]) ? 0.02 : 0.001;
   }
   function pickEpicUnit(){
-    // 이미 최초 획득한 에픽은 이후 절대확률이 약 0.1% 수준에 가깝게 낮아지도록 가중치 조정.
     const seenCount=epicUnits.filter(e=>state.epicSeen[e]).length;
     const unseenCount=epicUnits.length-seenCount;
     const totalRate=epicRate();
@@ -1083,19 +1132,32 @@
     return epicUnits[0];
   }
   function mythicRate(){
-    // 앰망진창 기본 0.05%, 한 마리 뽑을 때마다 이후 확률 반토막.
-    return 0.0005 * Math.pow(0.5, state.mythicCount || 0);
+    // 앰망진창 기본 0.01%, 한 마리 뽑을 때마다 이후 확률 반토막.
+    return 0.0001 * Math.pow(0.5, state.mythicCount || 0);
   }
   function rollRank(){
     const r = Math.random();
     const eRate = epicRate();
     const mRate = mythicRate();
-    if(r < mRate) return '신화';
-    if(r < mRate + eRate) return '에픽';
-    if(r < mRate + eRate + 0.0000455) return '전설';
-    if(r < mRate + eRate + 0.00077805) return '영웅';
-    if(r < mRate + eRate + 0.01211665) return '희귀';
-    if(r < mRate + eRate + 0.06491665) return '고급';
+
+    // 전설은 합성 불가가 되는 대신 0.03% 고정.
+    const legendRate = 0.0003;
+    const heroRate = 0.00073255;
+    const rareRate = 0.01133860;
+    const advancedRate = 0.05280000;
+
+    let acc = mRate;
+    if(r < acc) return '신화';
+    acc += eRate;
+    if(r < acc) return '에픽';
+    acc += legendRate;
+    if(r < acc) return '전설';
+    acc += heroRate;
+    if(r < acc) return '영웅';
+    acc += rareRate;
+    if(r < acc) return '희귀';
+    acc += advancedRate;
+    if(r < acc) return '고급';
     return '일반';
   }
 
@@ -1110,8 +1172,8 @@
         balance.unitBase.참직.dmg * (1 + state.up.참직 * upgradeMul);
 
       return {
-        dmg:sumDmg * (1 + state.aug.globalDmg),
-        rate:b.rate * (1 + state.aug.globalRate) * (1 + state.aug.epicRate*.5),
+        dmg:sumDmg * (1 + state.aug.globalDmg) * MYTHIC_NERF_MUL,
+        rate:b.rate * (1 + state.aug.globalRate) * (1 + state.aug.epicRate*.5) * MYTHIC_NERF_MUL,
         range:Math.max(W,H) * 1.15,
         move:b.move,
         splash:true,
@@ -1124,7 +1186,7 @@
       let cdMul=1;
       if(u.race==='앰랖') cdMul *= 1 / Math.max(.35, 1 - state.aug.amrapCooldown);
       if(u.race==='야코') cdMul *= 1 / Math.max(.35, 1 - state.aug.yakkoCooldown);
-      return {dmg:0,rate:b.rate*(1+state.aug.globalRate)*(1+state.aug.epicRate)*cdMul,range:Math.min(W,H)*b.range*(1+state.aug.globalRange+state.aug.epicRange),move:b.move,splash:false};
+      return {dmg:0,rate:b.rate*(1+state.aug.globalRate)*(1+state.aug.epicRate)*cdMul*EPIC_COMPENSATE_MUL,range:Math.min(W,H)*b.range*(1+state.aug.globalRange+state.aug.epicRange)*EPIC_COMPENSATE_MUL,move:b.move,splash:false};
     }
     const idx=ranks.indexOf(u.rank);
     const up = u.race==='신화' ? 0 : state.up[u.race];
@@ -1157,6 +1219,7 @@
       target:null, targetBest:Infinity, targetThink:rand(0,.18),
       cool:rand(0,.35), step:Math.random()*6.28, face:1, pulse:0,
     });
+    checkQuests();
   }
 
   function drawUnitAction(){
@@ -1211,7 +1274,7 @@
   }
 
   function mergeUnit(race,rank){
-    const idx=ranks.indexOf(rank); if(idx < 0 || idx >= 4){ toast('합칠 수 없는 등급'); return; }
+    const idx=ranks.indexOf(rank); if(idx < 0 || idx >= 3){ toast('전설은 합성으로 만들 수 없습니다'); return; }
     const found=state.units.filter(u=>u.race===race && u.rank===rank);
     if(found.length < balance.mergeNeed){ toast(`${race} ${rank} ${balance.mergeNeed}마리 필요`); sfx('error'); return; }
     const remove = new Set(found.slice(0,balance.mergeNeed).map(u=>u.id));
@@ -1226,7 +1289,7 @@
   function autoMergeAll(){
     let merged=false;
     for(const race of ['매실','코인조망','참직']){
-      for(let i=0;i<4;i++){
+      for(let i=0;i<3;i++){
         const rank=ranks[i];
         while(state.units.filter(u=>u.race===race && u.rank===rank).length >= balance.mergeNeed){
           merged=true; mergeUnit(race,rank);
@@ -1268,10 +1331,19 @@
 
   function attack(u,m,power){
     const mult=balance.damageMatrix[u.race][m.type] || 1;
-    let damage=Math.max(1, power.dmg * mult - Math.max(0, m.armor - (m.armorDebuff||0)));
-    if(m.boss) damage *= (1 + state.aug.bossDmg);
-    if((m.damageAmpTime||0)>0) damage *= (1 + (m.damageAmp||0));
-    m.hp -= damage; m.flash=.12;
+    let baseDamage=Math.max(1, power.dmg * mult - Math.max(0, m.armor - (m.armorDebuff||0)));
+    if(m.boss) baseDamage *= (1 + state.aug.bossDmg);
+    if((m.damageAmpTime||0)>0) baseDamage *= (1 + (m.damageAmp||0));
+    baseDamage *= executeMul(m);
+
+    let damage = baseDamage;
+    const canCrit = Math.random() < critChance();
+    if(canCrit){
+      damage *= critDamageMul();
+      if(allowFx(.5)) state.fx.push({kind:'crit',x:m.x,y:m.y-12,vx:0,vy:-40,life:.38,color:'#ffe45e',size:10});
+    }
+
+    m.hp -= damage; m.flash=canCrit ? .18 : .12;
     if(power.splash){
       const splashRadius = power.splashRadius || 0;
       const splashTargets = state.mobs
@@ -1284,17 +1356,17 @@
       for(const {other,sd} of splashTargets){
         const grade = u.race==='신화' ? 5 : Math.max(0, ranks.indexOf(u.rank));
         const splashBands = [
-          [0,0],       // 일반: 스플래시 없음
-          [0.15,0.30], // 고급
-          [0.20,0.40], // 희귀
-          [0.24,0.48], // 영웅
-          [0.27,0.54], // 전설
-          [0.30,0.60]  // 신화/앰망진창
+          [0,0],
+          [0.15,0.30],
+          [0.20,0.40],
+          [0.24,0.48],
+          [0.27,0.54],
+          [0.30,0.60]
         ];
         const band = splashBands[grade] || [0.15,0.30];
         const far = Math.min(1, sd / Math.max(1,splashRadius));
         const splashMul = band[1] - (band[1]-band[0]) * far;
-        other.hp -= damage * splashMul * (1 + state.aug.splashDmg) * (((other.damageAmpTime||0)>0) ? (1+(other.damageAmp||0)) : 1);
+        other.hp -= baseDamage * splashMul * (1 + state.aug.splashDmg) * executeMul(other) * (((other.damageAmpTime||0)>0) ? (1+(other.damageAmp||0)) : 1);
         other.flash=.09;
       }
 
@@ -1303,11 +1375,10 @@
       }
     }
     const kind = u.race==='매실'?'laser':u.race==='코인조망'?'orb':u.race==='참직'?'spit':'myth';
-    if(allowFx(state.speed>=4?.25:.7)) sfx(kind==='laser'?'attack_laser':kind==='orb'?'attack_orb':kind==='spit'?'attack_spit':'legend');
-    if(allowFx(.65)) state.shots.push({kind,x:u.x,y:u.y,tx:m.x,ty:m.y,life:kind==='laser'?.10:.22,t:0,color:raceColors[u.race]});
-    for(let i=0;i<(state.lowMode?1:(state.speed>=4?1:2));i++) if(allowFx(.75)) state.fx.push({kind:'hit',x:m.x+rand(-5,5),y:m.y+rand(-5,5),vx:rand(-20,20),vy:rand(-50,0),life:.22,color:raceColors[u.race],size:rand(2,5)});
+    if(allowFx(state.speed>=4 ? .25 : .7)) sfx(kind==='laser'?'attack_laser':kind==='orb'?'attack_orb':kind==='spit'?'attack_spit':'legend');
+    if(allowFx(.65)) state.shots.push({kind,x:u.x,y:u.y,tx:m.x,ty:m.y,life:kind==='laser' ? .10 : .22,t:0,color:canCrit?'#ffe45e':raceColors[u.race]});
+    for(let i=0;i<(state.lowMode?1:(state.speed>=4?1:2));i++) if(allowFx(.75)) state.fx.push({kind:'hit',x:m.x+rand(-5,5),y:m.y+rand(-5,5),vx:rand(-20,20),vy:rand(-50,0),life:.22,color:canCrit?'#ffe45e':raceColors[u.race],size:rand(3,7)});
   }
-
 
   function applyStormTo(m, duration, ticks, normalPct, bossPct){
     m.storm = Math.max(m.storm || 0, duration);
@@ -1358,17 +1429,17 @@
 
     if(u.race==='신화'){
       // 초궁극의 앰망진창: 에픽 3종 능력을 모두 보유.
-      const ensnareRadius = W*.18*(1+state.aug.epicRange+state.aug.legendEnsnareRange);
-      const stormRadius = W*.18*(1+state.aug.epicRange+state.aug.amrapStormRange);
+      const ensnareRadius = W*.18*(1+state.aug.epicRange+state.aug.legendEnsnareRange)*MYTHIC_NERF_MUL;
+      const stormRadius = W*.18*(1+state.aug.epicRange+state.aug.amrapStormRange)*MYTHIC_NERF_MUL;
       for(const m of state.mobs){
         if(Math.hypot(m.x-target.x,m.y-target.y)<=ensnareRadius){
-          applyEnsnareTo(m, 9.9+state.aug.ensnareDuration+state.aug.legendEnsnareDuration, state.aug.legendDotPct, 0.00045, state.aug.legendDamageAmp);
+          applyEnsnareTo(m, (9.9+state.aug.ensnareDuration+state.aug.legendEnsnareDuration)*MYTHIC_NERF_MUL, state.aug.legendDotPct*MYTHIC_NERF_MUL, 0.00045*MYTHIC_NERF_MUL, state.aug.legendDamageAmp*MYTHIC_NERF_MUL);
         }
         if(Math.hypot(m.x-target.x,m.y-target.y)<=stormRadius){
-          applyStormTo(m, 2.25, 4+state.aug.amrapStormTicks, 0.027+state.aug.amrapStormPct, 0.0027+state.aug.amrapStormBossPct);
+          applyStormTo(m, 2.25*MYTHIC_NERF_MUL, 4+state.aug.amrapStormTicks, (0.027+state.aug.amrapStormPct)*MYTHIC_NERF_MUL, (0.0027+state.aug.amrapStormBossPct)*MYTHIC_NERF_MUL);
         }
       }
-      applyYakkoLock(u,target,1.0);
+      applyYakkoLock(u,target,MYTHIC_NERF_MUL);
       state.fx.push({kind:'ensnare',x:target.x,y:target.y,r:ensnareRadius,life:.75,color:'#39ff66'});
       state.fx.push({kind:'storm',x:target.x,y:target.y,r:stormRadius,life:2.5,color:'#b57cff'});
       state.fx.push({kind:'lockdown',x:target.x,y:target.y,r:W*.06,life:1,color:'#ffe45e'});
@@ -1378,12 +1449,12 @@
     }
 
     if(u.race==='레전드박'){
-      const duration = 9 + state.aug.ensnareDuration + state.aug.legendEnsnareDuration;
-      const radius = W*.135*(1+state.aug.epicRange+state.aug.legendEnsnareRange);
+      const duration = (9 + state.aug.ensnareDuration + state.aug.legendEnsnareDuration)*EPIC_COMPENSATE_MUL;
+      const radius = W*.135*(1+state.aug.epicRange+state.aug.legendEnsnareRange)*EPIC_COMPENSATE_MUL;
       for(const m of state.mobs){
         if(Math.hypot(m.x-target.x,m.y-target.y)<=radius){
-          applyEnsnareTo(m, duration, state.aug.legendDotPct, 0.0005, state.aug.legendDamageAmp);
-          m.hp-=5.4*(1+state.aug.globalDmg)*(m.boss?(1+state.aug.bossDmg):1);
+          applyEnsnareTo(m, duration, state.aug.legendDotPct*EPIC_COMPENSATE_MUL, 0.0005*EPIC_COMPENSATE_MUL, state.aug.legendDamageAmp*EPIC_COMPENSATE_MUL);
+          m.hp-=5.4*EPIC_COMPENSATE_MUL*(1+state.aug.globalDmg)*(m.boss?(1+state.aug.bossDmg):1);
         }
       }
       state.fx.push({kind:'ensnare',x:target.x,y:target.y,r:radius,life:.75,color:'#39ff66'});
@@ -1393,13 +1464,13 @@
     }
 
     if(u.race==='앰랖'){
-      const radius = W*.1305*(1+state.aug.epicRange+state.aug.amrapStormRange);
+      const radius = W*.1305*(1+state.aug.epicRange+state.aug.amrapStormRange)*EPIC_COMPENSATE_MUL;
       const ticks = 4 + state.aug.amrapStormTicks;
       for(const m of state.mobs){
         if(Math.hypot(m.x-target.x,m.y-target.y)<=radius){
           // 기본 앰랖 스톰: 일반 몬스터 틱당 최대체력 3%, 보스는 0.3%.
           // 전용 증강은 일반 +10%, 보스 +0.1%까지 추가.
-          applyStormTo(m, ticks*.45+.225, ticks, 0.027+state.aug.amrapStormPct, 0.0027+state.aug.amrapStormBossPct);
+          applyStormTo(m, (ticks*.45+.225)*EPIC_COMPENSATE_MUL, ticks, (0.027+state.aug.amrapStormPct)*EPIC_COMPENSATE_MUL, (0.0027+state.aug.amrapStormBossPct)*EPIC_COMPENSATE_MUL);
         }
       }
       state.fx.push({kind:'storm',x:target.x,y:target.y,r:radius,life:2.5,color:'#b57cff'});
@@ -1408,13 +1479,13 @@
     }
 
     if(u.race==='야코'){
-      applyYakkoLock(u,target,1);
+      applyYakkoLock(u,target,EPIC_COMPENSATE_MUL);
 
       if(state.aug.yakkoBounce>0){
         const bounce = state.mobs
           .filter(m=>m!==target && Math.hypot(m.x-target.x,m.y-target.y)<W*.18 && (m.lockdown||0)<=0)
           .sort((a,b)=>Math.hypot(a.x-target.x,a.y-target.y)-Math.hypot(b.x-target.x,b.y-target.y))[0];
-        if(bounce) applyYakkoLock(u,bounce,.65);
+        if(bounce) applyYakkoLock(u,bounce,.65*EPIC_COMPENSATE_MUL);
       }
 
       sfx('attack_laser');
@@ -1597,7 +1668,7 @@
   }
 
   function nextStage(){
-    if(state.stage >= 100){ endGame(true,'최종보스 인생까지 격파했다. 앰망진창 세계 정복 성공.'); return; }
+    if(state.stage >= 150){ endGame(true,'최종보스 익명의 앰생5까지 격파했다. 앰망진창 세계 정복 성공.'); return; }
     const clearedStage = state.stage;
     state.stage++; state.time = bosses[state.stage] ? 120 : 45; state.spawned=0; state.nextSpawn=0;
     if(bosses[state.stage]) showBossAlert(bosses[state.stage]); else { sfx('wave'); toast(`WAVE ${state.stage}`); }
@@ -1641,9 +1712,11 @@
           state.gold += bossGold;
           state.stats.goldEarned += bossGold; state.stats.goldFromBoss += bossGold; state.stats.bossesKilled++;
           showGoldPopup(`+${bossGold}G 획득!`);
-          const epic = pickEpicUnit();
-          addUnit(epic,'에픽');
-          burst('에픽',epic);
+          if(state.stage % 20 === 0){
+            const epic = pickEpicUnit();
+            addUnit(epic,'에픽');
+            burst('에픽',epic);
+          }
         }else{
           state.killBank += 1;
           sfx('kill');
@@ -1678,6 +1751,116 @@
   function rankStatsHTML(obj){
     const labels=['일반','고급','희귀','영웅','전설','에픽','신화'];
     return `<div class="rankStats">${labels.map(r=>`<div class="rankChip"><strong style="color:${rankColors[r]||'#fff'}">${r==='신화'?'앰망진창':r}</strong><span>${fmtNum(obj[r]||0)}</span></div>`).join('')}</div>`;
+  }
+
+  function unitCount(race,rank){
+    return state.units.filter(u=>u.race===race && u.rank===rank).length;
+  }
+  function completeQuest(key,label){
+    if(state.quest.completed[key]) return false;
+    state.quest.completed[key]=true;
+    toast(`퀘스트 완료! ${label}`);
+    sfx('legend');
+    showQuestComplete(label);
+    if($('questList')?.classList.contains('show')) renderQuestList();
+    return true;
+  }
+  function checkQuests(){
+    const q=state.quest.completed;
+    if(!q.msRare && unitCount('매실','희귀')>=3) completeQuest('msRare','매실 희귀 3마리 · 치명타 확률 +4%');
+    if(!q.msHero && unitCount('매실','영웅')>=3) completeQuest('msHero','매실 영웅 3마리 · 치명타 확률 +6%');
+    if(!q.msLegend && unitCount('매실','전설')>=1) completeQuest('msLegend','매실 전설 1마리 · 치명타 확률 +8%');
+
+    if(!q.coinRare && unitCount('코인조망','희귀')>=3) completeQuest('coinRare','코인조망 희귀 3마리 · 치명타 피해 +8%');
+    if(!q.coinHero && unitCount('코인조망','영웅')>=3) completeQuest('coinHero','코인조망 영웅 3마리 · 치명타 피해 +12%');
+    if(!q.coinLegend && unitCount('코인조망','전설')>=1) completeQuest('coinLegend','코인조망 전설 1마리 · 치명타 피해 +20%');
+
+    if(!q.chamRare && unitCount('참직','희귀')>=3) completeQuest('chamRare','참직 희귀 3마리 · 처형 피해 +20%');
+    if(!q.chamHero && unitCount('참직','영웅')>=3) completeQuest('chamHero','참직 영웅 3마리 · 처형 피해 +25%');
+    if(!q.chamLegend && unitCount('참직','전설')>=1) completeQuest('chamLegend','참직 전설 1마리 · 모든 몬스터 처형 +15%');
+  }
+  function critChance(){
+    const q=state.quest.completed;
+    let v=.01;
+    if(q.msRare) v+=.04;
+    if(q.msHero) v+=.06;
+    if(q.msLegend) v+=.08;
+    return Math.min(.25,v);
+  }
+  function critDamageMul(){
+    const q=state.quest.completed;
+    let v=1.50;
+    if(q.coinRare) v+=.08;
+    if(q.coinHero) v+=.12;
+    if(q.coinLegend) v+=.20;
+    return Math.min(2.0,v);
+  }
+  function executeMul(monster){
+    const q=state.quest.completed;
+    if(!monster || monster.maxHp<=0 || monster.hp/monster.maxHp > .30) return 1;
+    let bonus=0;
+    if(!monster.boss){
+      if(q.chamRare) bonus+=.20;
+      if(q.chamHero) bonus+=.25;
+    }
+    if(q.chamLegend) bonus+=.15;
+    return 1+bonus;
+  }
+  function questItems(){
+    const q=state.quest.completed;
+    return [
+      {key:'msRare',name:'매실 희귀 3마리',done:q.msRare,reward:'치명타 확률 +4%'},
+      {key:'msHero',name:'매실 영웅 3마리',done:q.msHero,reward:'치명타 확률 +6%'},
+      {key:'msLegend',name:'매실 전설 1마리',done:q.msLegend,reward:'치명타 확률 +8%'},
+      {key:'coinRare',name:'코인조망 희귀 3마리',done:q.coinRare,reward:'치명타 피해 +8%'},
+      {key:'coinHero',name:'코인조망 영웅 3마리',done:q.coinHero,reward:'치명타 피해 +12%'},
+      {key:'coinLegend',name:'코인조망 전설 1마리',done:q.coinLegend,reward:'치명타 피해 +20%'},
+      {key:'chamRare',name:'참직 희귀 3마리',done:q.chamRare,reward:'체력 30% 이하 일반 피해 +20%'},
+      {key:'chamHero',name:'참직 영웅 3마리',done:q.chamHero,reward:'체력 30% 이하 일반 피해 +25%'},
+      {key:'chamLegend',name:'참직 전설 1마리',done:q.chamLegend,reward:'체력 30% 이하 모든 몬스터 피해 +15%'}
+    ];
+  }
+
+  function questStatsHTML(){
+    const items=questItems();
+    return `<div class="miniRows">
+      <div class="miniLine"><span>치명타 확률</span><b>${Math.round(critChance()*100)}%</b></div>
+      <div class="miniLine"><span>치명타 피해</span><b>${Math.round(critDamageMul()*100)}%</b></div>
+    </div>
+    <div class="augStatsList" style="margin-top:8px">${items.map(i=>`<div class="augStatsLine"><b style="color:${i.done?'#ffe36e':'#8d98a8'}">${i.done?'완료':'미완료'}</b> · ${i.name}<br>${i.reward}</div>`).join('')}</div>`;
+  }
+
+  function renderQuestList(){
+    const items=questItems();
+    $('questListBody').innerHTML = items.map(i=>`
+      <div class="questLine ${i.done?'done':''}">
+        <div>
+          <div class="questName">${i.name}</div>
+          <div class="questReward">${i.reward}</div>
+        </div>
+        <div class="questCheck">${i.done?'V':''}</div>
+      </div>
+    `).join('');
+  }
+
+  function showQuestList(){
+    renderQuestList();
+    $('questList').classList.add('show');
+    sfx('menu');
+  }
+
+  function showQuestComplete(label){
+    const el=$('questComplete');
+    $('questCompleteText').textContent = label;
+    el.classList.remove('show');
+    void el.offsetWidth;
+    el.classList.add('show');
+    $('app').classList.add('quake');
+    for(let i=0;i<26;i++){
+      state.fx.push({kind:'spark',x:W*.5,y:H*.38,vx:rand(-230,230),vy:rand(-260,80),life:rand(.45,1.0),color:i%2?'#ffe977':'#ff7a2d',size:rand(4,10)});
+    }
+    clearTimeout(showQuestComplete._t);
+    showQuestComplete._t=setTimeout(()=>{ el.classList.remove('show'); $('app').classList.remove('quake'); },1350);
   }
   const RANK_SCORE_WEIGHT = {일반:1,고급:3,희귀:9,영웅:27,전설:81,에픽:60,신화:100};
   function calcUnitScore(){
@@ -1756,21 +1939,35 @@
     }
   }
 
-  function showClearStats(){
+  function showClearStats(clear=false){
     const s=state.stats;
+    state.lastGameClear=!!clear;
     const current=unitsByRankFromCurrent();
     const augList=state.aug.applied.length
       ? state.aug.applied.map((a,i)=>`<div class="augStatsLine"><span class="tier tier-${AUG_TIER_CLASS[a.tier]||'common'}">${a.tierLabel||'일반'}</span>${i+1}. <b>${a.title}</b>${a.epic?' <small>전용 · 앰망진창도 적용</small>':''}<br>${a.summary}</div>`).join('')
       : '<div class="augStatsLine">선택한 증강 없음</div>';
 
+    const titleEl=document.querySelector('#clearStats .statsTitle');
+    const subEl=document.querySelector('#clearStats .statsSub');
+    if(titleEl) titleEl.textContent = clear ? 'CLEAR!' : 'GAME OVER';
+    if(subEl) subEl.textContent = clear ? '150스테이지 클리어 통계' : `WAVE ${state.stage} 도달 통계`;
+
     $('clearStatsBody').innerHTML = `
       <div class="statsGrid">
+        <div class="statBox"><b>${fmtNum(state.stage)}</b><span>도달 WAVE</span></div>
         <div class="statBox"><b>${fmtNum(state.kills)}</b><span>총 킬</span></div>
+        <div class="statBox"><b>${fmtNum(calcUnitScore())}</b><span>유닛 스코어</span></div>
         <div class="statBox"><b>${fmtNum(s.goldEarned)}G</b><span>총 벌은 골드</span></div>
         <div class="statBox"><b>${fmtNum(s.goldSpent)}G</b><span>총 사용 골드</span></div>
         <div class="statBox"><b>${fmtNum(s.drawCount)}</b><span>총 뽑기</span></div>
         <div class="statBox"><b>${fmtNum(s.merges)}</b><span>합성 횟수</span></div>
-        <div class="statBox"><b>${fmtNum(s.bossesKilled)}/10</b><span>보스 처치</span></div>
+        <div class="statBox"><b>${fmtNum(s.bossesKilled)}/15</b><span>보스 처치</span></div>
+        <div class="statBox"><b>${fmtNum(s.draw6Count)}</b><span>6회 뽑기</span></div>
+      </div>
+
+      <div class="statsSection">
+        <h4>종족 퀘스트</h4>
+        ${questStatsHTML()}
       </div>
 
       <div class="statsSection">
@@ -1804,7 +2001,7 @@
           <div class="miniLine"><span>매실</span><b>Lv.${state.up.매실}</b></div>
           <div class="miniLine"><span>코인조망</span><b>Lv.${state.up.코인조망}</b></div>
           <div class="miniLine"><span>참직</span><b>Lv.${state.up.참직}</b></div>
-          <div class="miniLine"><span>6회 뽑기</span><b>${fmtNum(s.draw6Count)}회</b></div>
+          <div class="miniLine"><span>앰망진창</span><b>${fmtNum(s.acquired.신화||0)}마리</b></div>
         </div>
       </div>
 
@@ -1820,13 +2017,7 @@
     stopBgm();
     sfx(clear?'legend':'gameover');
     state.running=false; state.over=true;
-    if(clear){
-      showClearStats();
-      return;
-    }
-
-    // 어느 스테이지에서 죽어도 랭킹 등록 가능.
-    showRankRegister();
+    showClearStats(!!clear);
   }
 
   function toast(msg){
@@ -2197,7 +2388,7 @@
     const baseCol = monsterColor(skin,state.stage,m.type);
     const hitMix = m.flash>0 ? `rgba(255,255,255,${Math.min(.8,m.flash*8)})` : null;
     ctx.save(); ctx.translate(x,y);
-    spriteShadow(m.boss?24:14,m.boss?8:5,m.boss?.34:.25);
+    spriteShadow(m.boss?24:14,m.boss?8:5,m.boss ? .34 : .25);
     if(m.boss){
       drawBossSprite(m,baseCol,hitMix);
     }else{
@@ -2377,7 +2568,7 @@
     if(['희귀','영웅','전설','신화','에픽'].includes(rank)){
       ctx.save();
       const r=rank==='전설'?34:rank==='신화'?39:rank==='에픽'?31:26;
-      ctx.globalAlpha=rank==='전설'||rank==='신화'?.55:.34;
+      ctx.globalAlpha=(rank==='전설'||rank==='신화') ? .55 : .34;
       ctx.strokeStyle=c; ctx.lineWidth=rank==='전설'||rank==='신화'?3:2;
       ctx.beginPath(); ctx.arc(0,2,r,0,7); ctx.stroke();
       if(rank==='전설'||rank==='신화'){
@@ -2510,6 +2701,7 @@
       const f = state.fx[fi];
       ctx.save(); ctx.globalAlpha=Math.max(0,Math.min(1,f.life*1.5)); ctx.fillStyle=f.color;
       if(f.kind==='spark'){ ctx.fillRect(f.x,f.y,f.size,f.size); }
+      else if(f.kind==='crit'){ ctx.font=`900 ${f.size||10}px system-ui`; ctx.textAlign='center'; ctx.lineWidth=3; ctx.strokeStyle='rgba(0,0,0,.75)'; ctx.strokeText('CRIT!',f.x,f.y); ctx.fillStyle=f.color; ctx.fillText('CRIT!',f.x,f.y); }
       else if(f.kind==='hit'){ ctx.beginPath(); ctx.arc(f.x,f.y,f.size,0,7); ctx.fill(); }
       else if(f.kind==='ensnare'){ ctx.globalAlpha=Math.max(0,f.life); ctx.strokeStyle=f.color; ctx.lineWidth=4; ctx.setLineDash([8,6]); ctx.beginPath(); ctx.arc(f.x,f.y,f.r,0,7); ctx.stroke(); ctx.setLineDash([]); }
       else if(f.kind==='storm'){ ctx.globalAlpha=Math.max(0,Math.min(1,f.life/2)); ctx.strokeStyle=f.color; ctx.lineWidth=3; for(let i=0;i<(state.lowMode?1:(state.speed>=4?1:4));i++){ ctx.beginPath(); ctx.arc(f.x+Math.sin(f.life*9+i)*8,f.y+Math.cos(f.life*8+i)*8,f.r*(.35+i*.13),0,7); ctx.stroke(); } }
@@ -2555,7 +2747,7 @@
   function openRankMenu(race,mode){
     $('menu').innerHTML=`<h3>${race} ${mode==='merge'?'합성':'판매'}</h3>
     <div class="menuGrid">
-      ${ranks.slice(0,5).map(r=>`<button class="${mode==='sell'?'menu-sell':'menu-util'}" data-rank="${r}">${r}<br><small>${countUnits(race,r)}마리 ${mode==='sell'?(sellValue(r)+'G'):''}</small></button>`).join('')}
+      ${(mode==='merge'?ranks.slice(0,3):ranks.slice(0,5)).map(r=>`<button class="${mode==='sell'?'menu-sell':'menu-util'}" data-rank="${r}">${r}<br><small>${countUnits(race,r)}마리 ${mode==='sell'?(sellValue(r)+'G'):''}</small></button>`).join('')}
       <button class="menu-back" data-rank="back">뒤로</button>
     </div>`;
     setMenuTapHandler(e => {
@@ -2675,7 +2867,7 @@
     state.lowMode = !!on;
     const btn=$('lowModeBtn');
     if(btn){
-      btn.textContent = state.lowMode ? '저사양' : '고사양';
+      btn.textContent = state.lowMode ? '저' : '고';
       btn.classList.toggle('high', !state.lowMode);
     }
     if(state.lowMode){
@@ -2692,7 +2884,9 @@
   $('speed4Btn').onclick = ()=>setSpeed(4);
   $('lowModeBtn').onclick = ()=>setLowMode(!state.lowMode);
   bindTap('augListBtn', showAugmentList);
+  bindTap('questListBtn', showQuestList);
   bindTap('augCloseBtn', ()=>$('augmentList').classList.remove('show'));
+  bindTap('questCloseBtn', ()=>$('questList').classList.remove('show'));
   $('augmentCards').onclick=null;
   $('augmentCards').addEventListener('pointerup',e=>{
     e.preventDefault();

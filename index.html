@@ -64,13 +64,13 @@
   .tier-common{background:#8f5714}
   .tier-advanced{background:#1e913f}
   .tier-rare{background:#1760a8}
-  .questList{display:grid;gap:7px;max-height:58vh;overflow:auto;padding-right:2px}
-  .questLine{display:grid;grid-template-columns:1fr 34px;gap:8px;align-items:center;border-radius:14px;background:rgba(255,255,255,.075);border:1px solid rgba(255,255,255,.10);padding:9px 9px;color:#edf3ff}
+  .questList{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;max-height:none;overflow:visible;padding-right:0}
+  .questLine{display:grid;grid-template-columns:1fr 22px;gap:5px;align-items:center;border-radius:11px;background:rgba(255,255,255,.075);border:1px solid rgba(255,255,255,.10);padding:6px 6px;color:#edf3ff;min-height:42px}
   .questLine.done{background:rgba(255,219,88,.14);border-color:rgba(255,219,88,.38)}
-  .questName{font-size:13px;font-weight:1000;color:#fff}
-  .questReward{margin-top:2px;font-size:11px;font-weight:850;color:#bfcbe0;line-height:1.25}
+  .questName{font-size:10.5px;font-weight:1000;color:#fff;letter-spacing:-.35px;line-height:1.12}
+  .questReward{margin-top:1px;font-size:9px;font-weight:850;color:#bfcbe0;line-height:1.12;letter-spacing:-.35px}
   .questLine.done .questReward{color:#ffe978}
-  .questCheck{width:28px;height:28px;border-radius:8px;border:3px solid rgba(255,255,255,.32);background:rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:1000;color:transparent}
+  .questCheck{width:20px;height:20px;border-radius:6px;border:2px solid rgba(255,255,255,.32);background:rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:1000;color:transparent}
   .questLine.done .questCheck{background:linear-gradient(180deg,#ffe977,#ffb42d);border-color:#fff2a8;color:#241300;text-shadow:0 1px rgba(255,255,255,.35)}
   #questComplete{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:64;pointer-events:none;background:radial-gradient(circle,rgba(255,225,95,.16),rgba(0,0,0,0) 58%)}
   #questComplete.show{display:flex;animation:questFlash 1.25s ease both}
@@ -205,11 +205,12 @@
   .rankScoreBox{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
   .rankScoreBox .statBox{padding:10px 8px}
   .rankList{display:grid;gap:7px;margin-top:10px}
-  .rankRow{display:grid;grid-template-columns:38px 1fr 62px 72px;gap:7px;align-items:center;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.10);padding:8px 9px;font-weight:900}
+  .rankRow{display:grid;grid-template-columns:34px 1fr 48px 58px 44px;gap:6px;align-items:center;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.10);padding:8px 8px;font-weight:900}
   .rankRow.me{background:rgba(255,226,83,.16);border-color:rgba(255,226,83,.36)}
   .rankNo{font-size:13px;color:#ffe36e;text-align:center}
   .rankName{font-size:14px;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .rankStage,.rankScore{text-align:right;font-size:12px;color:#dce6f0}
+  .rankStage,.rankScore,.rankVersion{text-align:right;font-size:12px;color:#dce6f0;white-space:nowrap}
+  .rankVersion{font-size:10px;color:#8f9db0}
   .rankMsg{text-align:center;padding:18px 8px;font-size:14px;font-weight:900;color:#dbe7f6}
   .rankBtnRow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
   .rankBtnRow.hallOnlyRetry{grid-template-columns:1fr}
@@ -270,7 +271,7 @@
 <div id="app">
   <canvas id="cv"></canvas>
   <div id="ui">
-    <div class="versionBadge" id="gameVersion">v0.54</div>
+    <div class="versionBadge" id="gameVersion">v0.56</div>
     <div class="safeTop">
       <div class="topRow">
         <div class="panel badge"><div class="label">WAVE</div><div class="value" id="wave">1</div><div class="sub" id="stageType">일반</div></div>
@@ -376,7 +377,7 @@
   <div id="titleScreen">
     <div class="titleHero">
       <div class="titleOverlay"></div>
-      <div class="versionBadge" id="titleVersion">v0.54</div>
+      <div class="versionBadge" id="titleVersion">v0.56</div>
       <div class="titleSpark s1"></div>
       <div class="titleSpark s2"></div>
       <div class="titleSpark s3"></div>
@@ -497,7 +498,6 @@
           .sort((a,b)=>
             (Number(b.stage||0)-Number(a.stage||0)) ||
             (Number(b.score||0)-Number(a.score||0)) ||
-            String(a.version||'').localeCompare(String(b.version||'')) ||
             String(a.id||'').localeCompare(String(b.id||''))
           )
           .slice(0,50);
@@ -508,7 +508,7 @@
 
 <script>
 (()=>{
-  const GAME_VERSION = 'v0.54';
+  const GAME_VERSION = 'v0.56';
 
   // GitHub Pages / 카톡 인앱브라우저 캐시 꼬임 완화.
   // 저장 데이터(localStorage)는 유지하고, 서비스워커/뒤로가기 캐시만 정리한다.
@@ -568,7 +568,7 @@
     lastGameClear:false,
     augmentChoices:[],
     quest:{
-      completed:{msRare:false,msHero:false,msLegend:false,coinRare:false,coinHero:false,coinLegend:false,chamRare:false,chamHero:false,chamLegend:false}
+      completed:{msRare:false,msHero:false,msLegend:false,msLegend2:false,coinRare:false,coinHero:false,coinLegend:false,coinLegend2:false,chamRare:false,chamHero:false,chamLegend:false,chamLegend2:false}
     },
     stats:{
       startGold:30,
@@ -1107,15 +1107,14 @@
   const MYTHIC_NERF_MUL = 0.90;
 
   function epicRate(){
-    // 아직 못 뽑은 에픽 종족이 있으면 전체 에픽 확률 2%.
-    // 해당 에픽 종족을 최초 1마리 뽑은 뒤에는 그 종족 확률이 0.1% 수준으로 낮아진다.
-    return epicUnits.some(e=>!state.epicSeen[e]) ? 0.02 : 0.001;
+    // 에픽 확률 70% 수준으로 너프: 최초 미획득 에픽 존재 시 1.4%, 전부 획득 후 0.07%.
+    return epicUnits.some(e=>!state.epicSeen[e]) ? 0.014 : 0.0007;
   }
   function pickEpicUnit(){
     const seenCount=epicUnits.filter(e=>state.epicSeen[e]).length;
     const unseenCount=epicUnits.length-seenCount;
     const totalRate=epicRate();
-    const seenAbs=0.001;
+    const seenAbs=0.0007;
     let weights;
     if(unseenCount>0){
       const unseenPool=Math.max(0.0001,totalRate-seenCount*seenAbs);
@@ -1140,8 +1139,8 @@
     const eRate = epicRate();
     const mRate = mythicRate();
 
-    // 전설은 합성 불가가 되는 대신 0.03% 고정.
-    const legendRate = 0.0003;
+    // 전설은 합성 불가, 확률은 0.033% 고정.
+    const legendRate = 0.00033;
     const heroRate = 0.00073255;
     const rareRate = 0.01133860;
     const advancedRate = 0.05280000;
@@ -1510,16 +1509,30 @@
     u.targetThink = (u.targetThink || 0);
     const cachedTarget = u.target && state.mobs.includes(u.target);
 
-    // 유닛별 타겟 재탐색도 매 프레임 하지 않는다.
-    // 기존 타겟이 살아있으면 거리만 다시 계산해서 사용.
     if(!force && cachedTarget && u.targetThink>0){
       return {target:u.target,best:Math.hypot(u.target.x-u.x,u.target.y-u.y)};
     }
 
     rebuildTargetCache(false);
 
+    const power=unitPower(u);
+    const candidateSet=new Set();
+
+    // 몬스터가 많을 때도 앞쪽 후보만 보지 않고,
+    // 유닛 사거리 안의 근처 몬스터는 반드시 후보에 포함한다.
+    if(state.mobs.length > 36){
+      for(const m of state.targetCache.front) candidateSet.add(m);
+      const nearLimit = power.range * 1.12 + 14;
+      for(const m of state.mobs){
+        const d=Math.hypot(m.x-u.x,m.y-u.y);
+        if(d <= nearLimit) candidateSet.add(m);
+      }
+    }else{
+      for(const m of state.mobs) candidateSet.add(m);
+    }
+
+    const mobs = [...candidateSet];
     let best=null, bestScore=Infinity;
-    const mobs = state.mobs.length > 36 ? state.targetCache.front : state.mobs;
 
     if(u.race==='야코'){
       let fallback=null, fallbackScore=Infinity;
@@ -1532,7 +1545,9 @@
       if(!best){ best=fallback; bestScore=fallbackScore; }
     }else if(u.race==='신화'){
       for(const m of mobs){
-        const score = -m.t*1000 + ((m.lockdown||0)>0 ? 120 : 0);
+        const d=Math.hypot(m.x-u.x,m.y-u.y);
+        const inRangeBonus = d <= power.range ? -5000 : 0;
+        const score = -m.t*1000 + ((m.lockdown||0)>0 ? 120 : 0) + inRangeBonus;
         if(score<bestScore){ bestScore=score; best=m; }
       }
       bestScore = best ? Math.hypot(best.x-u.x,best.y-u.y) : Infinity;
@@ -1770,14 +1785,17 @@
     if(!q.msRare && unitCount('매실','희귀')>=3) completeQuest('msRare','매실 희귀 3마리 · 치명타 확률 +4%');
     if(!q.msHero && unitCount('매실','영웅')>=3) completeQuest('msHero','매실 영웅 3마리 · 치명타 확률 +6%');
     if(!q.msLegend && unitCount('매실','전설')>=1) completeQuest('msLegend','매실 전설 1마리 · 치명타 확률 +8%');
+    if(!q.msLegend2 && unitCount('매실','전설')>=2) completeQuest('msLegend2','매실 전설 2마리 · 치명타 확률 +21%');
 
     if(!q.coinRare && unitCount('코인조망','희귀')>=3) completeQuest('coinRare','코인조망 희귀 3마리 · 치명타 피해 +8%');
     if(!q.coinHero && unitCount('코인조망','영웅')>=3) completeQuest('coinHero','코인조망 영웅 3마리 · 치명타 피해 +12%');
     if(!q.coinLegend && unitCount('코인조망','전설')>=1) completeQuest('coinLegend','코인조망 전설 1마리 · 치명타 피해 +20%');
+    if(!q.coinLegend2 && unitCount('코인조망','전설')>=2) completeQuest('coinLegend2','코인조망 전설 2마리 · 치명타 피해 +30%');
 
     if(!q.chamRare && unitCount('참직','희귀')>=3) completeQuest('chamRare','참직 희귀 3마리 · 처형 피해 +20%');
     if(!q.chamHero && unitCount('참직','영웅')>=3) completeQuest('chamHero','참직 영웅 3마리 · 처형 피해 +25%');
     if(!q.chamLegend && unitCount('참직','전설')>=1) completeQuest('chamLegend','참직 전설 1마리 · 모든 몬스터 처형 +15%');
+    if(!q.chamLegend2 && unitCount('참직','전설')>=2) completeQuest('chamLegend2','참직 전설 2마리 · 모든 몬스터 처형 +35%');
   }
   function critChance(){
     const q=state.quest.completed;
@@ -1785,7 +1803,8 @@
     if(q.msRare) v+=.04;
     if(q.msHero) v+=.06;
     if(q.msLegend) v+=.08;
-    return Math.min(.25,v);
+    if(q.msLegend2) v+=.21;
+    return Math.min(.40,v);
   }
   function critDamageMul(){
     const q=state.quest.completed;
@@ -1793,7 +1812,8 @@
     if(q.coinRare) v+=.08;
     if(q.coinHero) v+=.12;
     if(q.coinLegend) v+=.20;
-    return Math.min(2.0,v);
+    if(q.coinLegend2) v+=.30;
+    return Math.min(2.20,v);
   }
   function executeMul(monster){
     const q=state.quest.completed;
@@ -1804,6 +1824,7 @@
       if(q.chamHero) bonus+=.25;
     }
     if(q.chamLegend) bonus+=.15;
+    if(q.chamLegend2) bonus+=.35;
     return 1+bonus;
   }
   function questItems(){
@@ -1812,12 +1833,15 @@
       {key:'msRare',name:'매실 희귀 3마리',done:q.msRare,reward:'치명타 확률 +4%'},
       {key:'msHero',name:'매실 영웅 3마리',done:q.msHero,reward:'치명타 확률 +6%'},
       {key:'msLegend',name:'매실 전설 1마리',done:q.msLegend,reward:'치명타 확률 +8%'},
+      {key:'msLegend2',name:'매실 전설 2마리',done:q.msLegend2,reward:'치명타 확률 +21%'},
       {key:'coinRare',name:'코인조망 희귀 3마리',done:q.coinRare,reward:'치명타 피해 +8%'},
       {key:'coinHero',name:'코인조망 영웅 3마리',done:q.coinHero,reward:'치명타 피해 +12%'},
       {key:'coinLegend',name:'코인조망 전설 1마리',done:q.coinLegend,reward:'치명타 피해 +20%'},
+      {key:'coinLegend2',name:'코인조망 전설 2마리',done:q.coinLegend2,reward:'치명타 피해 +30%'},
       {key:'chamRare',name:'참직 희귀 3마리',done:q.chamRare,reward:'체력 30% 이하 일반 피해 +20%'},
       {key:'chamHero',name:'참직 영웅 3마리',done:q.chamHero,reward:'체력 30% 이하 일반 피해 +25%'},
-      {key:'chamLegend',name:'참직 전설 1마리',done:q.chamLegend,reward:'체력 30% 이하 모든 몬스터 피해 +15%'}
+      {key:'chamLegend',name:'참직 전설 1마리',done:q.chamLegend,reward:'체력 30% 이하 모든 몬스터 피해 +15%'},
+      {key:'chamLegend2',name:'참직 전설 2마리',done:q.chamLegend2,reward:'체력 30% 이하 모든 몬스터 피해 +35%'}
     ];
   }
 
@@ -1931,6 +1955,7 @@
           <div class="rankName">${sanitizeRankName(r.name)}</div>
           <div class="rankStage">${fmtNum(r.stage||0)}층</div>
           <div class="rankScore">${fmtNum(r.score||0)}점</div>
+          <div class="rankVersion">${r.version || '-'}</div>
         </div>
       `).join('');
     }catch(e){
